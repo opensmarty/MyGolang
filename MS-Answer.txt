@@ -1,0 +1,178 @@
+1. 参考答案及解析：South。
+知识点：iota 的用法、类型的 String() 方法。
+根据 iota 的用法推断出 South 的值是 3；另外，如果类型定义了 String() 方法，当使用 fmt.Printf()、fmt.Print() 和 fmt.Println() 会自动使用 String() 方法，实现字符串的打印
+
+2.参考答案及解析：B，编译报错 cannot assign to struct field m["foo"].x in map。
+  错误原因：对于类似 X = Y的赋值操作，必须知道 X 的地址，才能够将 Y 的值赋给 X，但 go 中的 map 的 value 本身是不可寻址的。
+
+  有两个解决办法：
+
+  1.使用临时变量
+
+  type Math struct {
+      x, y int
+  }
+
+  var m = map[string]Math{
+      "foo": Math{2, 3},
+  }
+
+  func main() {
+      tmp := m["foo"]
+      tmp.x = 4
+      m["foo"] = tmp
+      fmt.Println(m["foo"].x)
+  }
+  2.修改数据结构
+
+  type Math struct {
+      x, y int
+  }
+
+  var m = map[string]*Math{
+      "foo": &Math{2, 3},
+  }
+
+  func main() {
+      m["foo"].x = 4
+      fmt.Println(m["foo"].x)
+      fmt.Printf("%#v", m["foo"])   // %#v 格式化输出详细信息
+  }
+  
+3. 参考答案及解析：0 1 1 2。知识点：iota 的用法。
+iota 是 golang 语言的常量计数器，只能在常量的表达式中使用。
+iota 在 const 关键字出现时将被重置为0，const中每新增一行常量声明将使 iota 计数一次
+
+4. 参考答案及解析：s is nil 和 p is not nil。
+  这道题会不会有点诧异，我们分配给变量 p 的值明明是 nil，然而 p 却不是 nil。
+  记住一点，当且仅当动态值和动态类型都为 nil 时，接口类型值才为 nil。
+  上面的代码，给变量 p 赋值之后，p 的动态值是 nil，但是动态类型却是 *Student，是一个 nil 指针，所以相等条件不成立。
+
+5. 参考答案及解析：B
+  基于类型创建的方法必须定义在同一个包内，上面的代码基于 int 类型创建了 PrintInt() 方法，由于 int 类型和方法 PrintInt() 定义在不同的包内，所以编译出错。
+
+  解决的办法可以定义一种新的类型：
+
+  type Myint int
+
+  func (i Myint) PrintInt ()  {
+      fmt.Println(i)
+  }
+
+  func main() {
+      var i Myint = 1
+      i.PrintInt()
+  } 
+  
+6. 参考答案及解析：B
+编译错误 Student does not implement People (Speak method has pointer receiver)，值类型 Student 没有实现接口的 Speak() 方法，而是指针类型 *Student 实现该方法
+
+7. 参考答案及解析：A 声明的是 nil 切片；B 声明的是长度和容量都为 0 的空切片。第一种切片声明不会分配内存，优先选择
+8. 参考答案及解析：BD。函数参数为 interface{} 时可以接收任何类型的参数，包括用户自定义类型等，即使是接收指针类型也用 interface{}，而不是使用 *interface{}。
+
+  永远不要使用一个指针指向一个接口类型，因为它已经是一个指针
+9. A. &S{"foo"} 
+  B. *f() 或者 f()
+  f() 函数返回参数是指针类型，所以可以用 & 取结构体的指针；B 处，如果填 *f()，则 p 是 S 类型；如果填 f()，则 p 是 *S 类型，不过都可以使用 p.m 取得结构体的成员
+10. 参考答案及解析：两个地方有语法问题。golang 的字符串类型是不能赋值 nil 的，也不能跟 nil 比较
+
+11. 参考答案及解析：2 1。defer 关键字后面的函数或者方法想要执行必须先注册，return 之后的 defer 是不能注册的， 也就不能执行后面的函数或方法
+12. 参考答案及解析：A。知识点：代码块和变量作用域
+13. map 的输出是无序的
+14. 参考答案及解析：
+        10 1 2 3
+        20 0 2 2
+        2 0 2 2
+        1 1 3 4
+    注册 defer 函数时，参数就已确定(闭包除外)，如果参数是表达式或函数，也会在注册时执行，调用时即直接运行    
+    程序执行到 main() 函数第三行代码的时候，会先执行 calc() 函数的 b 参数，即：calc("10",a,b)，输出：10 1 2 3，得到值 3，
+    因为defer 定义的函数是延迟函数，故 calc("1",1,3) 会被延迟执行；
+    程序执行到第五行的时候，同样先执行 calc("20",a,b) 输出：20 0 2 2 得到值 2，同样将 calc("2",0,2) 延迟执行；
+    程序执行到末尾的时候，按照栈先进后出的方式依次执行：calc("2",0,2)，calc("1",1,3)，则就依次输出：2 0 2 2，1 1 3 4
+15. 参考答案及解析：B。基于类型创建的方法必须定义在同一个包内
+    上面的代码基于 int 类型创建了 PrintInt() 方法，由于 int 类型和方法 PrintInt() 定义在不同的包内，所以编译出错
+
+    解决的办法可以定义一种新的类型：
+    type Myint int
+    func (i Myint) PrintInt ()  {
+        fmt.Println(i)
+    }
+    func main() {
+        var i Myint = 1
+        i.PrintInt()
+    }
+16. 参考答案及解析：B。编译错误 Student does not implement People (Speak method has pointer receiver)，
+    值类型 Student 没有实现接口的 Speak() 方法，而是指针类型 *Student 实现该方法
+
+17. 参考答案及解析：
+
+    r =  [1 2 3 4 5]
+    a =  [1 12 13 4 5]
+    range 表达式是副本参与循环，就是说例子中参与循环的是 a 的副本，而不是真正的 a。就这个例子来说，假设 b 是 a 的副本，则 range 循环代码是这样的：
+
+    for i, v := range b {
+        if i == 0 {
+            a[1] = 12
+            a[2] = 13
+        }
+        r[i] = v
+    }
+    因此无论 a 被如何修改，其副本 b 依旧保持原值，并且参与循环的是 b，因此 v 从 b 中取出的仍旧是 a 的原值，而非修改后的值。
+
+    如果想要 r 和 a 一样输出，修复办法：
+
+    func main() {
+        var a = [5]int{1, 2, 3, 4, 5}
+        var r [5]int
+
+        for i, v := range &a {
+            if i == 0 {
+                a[1] = 12
+                a[2] = 13
+            }
+            r[i] = v
+        }
+        fmt.Println("r = ", r)
+        fmt.Println("a = ", a)
+    }
+    输出：
+
+    r =  [1 12 13 4 5]
+    a =  [1 12 13 4 5]
+    修复代码中，使用 *[5]int 作为 range 表达式，其副本依旧是一个指向原数组 a 的指针，因此后续所有循环中均是 &a 指向的原数组亲自参与的，因此 v 能从 &a 指向的原数组中取出 a 修改后的值
+
+  对比程序 ：
+  func main() {
+	var a = []int{1, 2, 3, 4, 5}
+	var r [5]int
+
+	for i, v := range a {
+		if i == 0 {
+			a[1] = 12
+			a[2] = 13
+		}
+		r[i] = v
+	}
+	fmt.Println("r = ", r)
+	fmt.Println("a = ", a)
+}
+
+输出 ：
+r =  [1 12 13 4 5]
+a =  [1 12 13 4 5]
+这的 a 是一个切片，那切片是怎么实现的呢？切片在 go 的内部结构有一个指向底层数组的指针，
+当 range 表达式发生复制时，副本的指针依旧指向原底层数组，所以对切片的修改都会反应到底层数组上，所以通过 v 可以获得修改后的数组元素。
+
+18. 参考答案及解析：
+
+[1 2 0 0 0]
+[1 2 3 0 0]
+知识点：可变函数、append()操作。Go 提供的语法糖...，可以将 slice 传进可变函数，
+不会创建新的切片。第一次调用 change() 时，append() 操作使切片底层数组发生了扩容，原 slice 的底层数组不会改变；
+第二次调用change() 函数时，使用了操作符[i,j]获得一个新的切片，假定为 slice1，它的底层数组和原切片底层数组是重合的，
+不过 slice1 的长度、容量分别是 2、5，所以在 change() 函数中对 slice1 底层数组的修改会影响到原切片
+
+注意： 切片作为参数向 可变长参数函数传递 如果 ...
+
+
+
