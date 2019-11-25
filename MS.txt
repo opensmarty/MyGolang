@@ -292,4 +292,59 @@ func main() {
     fmt.Println(slice)
 }
 
+19. 下面列举的是 recover() 的几种调用方式，哪些是正确的？
+
+A.
+func main() {
+    recover()
+    panic(1)
+}
+B.
+func main() {
+    defer recover()
+    panic(1)
+}
+C.
+func main() {
+    defer func() {
+        recover()
+    }()
+    panic(1)
+}
+D.
+func main() {
+    defer func() {
+        defer func() {
+            recover()
+        }()
+    }()
+    panic(1)
+}
+
+20. 下面代码输出什么，请说明？
+func main() {
+     defer func() {
+         fmt.Print(recover())
+     }()
+     defer func() {
+         defer fmt.Print(recover())
+         panic(1)
+    }()
+     defer recover() 
+    panic(2)
+}
+21. 输出什么？
+func main() {
+     defer func() {
+        fmt.Print(recover())
+     }()
+     defer func() {
+         defer func() {
+             fmt.Print(recover())
+         }()
+         panic(1)
+    }()
+    defer recover()
+    panic(2)
+}
 
