@@ -1,0 +1,295 @@
+1.下面这段代码输出什么？
+
+  type Direction int
+
+  const (
+      North Direction = iota
+      East
+      South
+      West
+  )
+
+  func (d Direction) String() string {
+      return [...]string{"North", "East", "South", "West"}[d]
+  }
+
+  func main() {
+      fmt.Println(South)
+  }
+2.下面代码输出什么？
+
+  type Math struct {
+      x, y int
+  }
+
+  var m = map[string]Math{
+      "foo": Math{2, 3},
+  }
+
+  func main() {
+      m["foo"].x = 4
+      fmt.Println(m["foo"].x)
+  }
+  A. 4
+  B. compilation error
+3.下面这段代码输出什么？
+
+  const (
+      a = iota
+      b = iota
+  )
+  const (
+      name = "name"
+      c    = iota
+      d    = iota
+  )
+  func main() {
+      fmt.Println(a)
+      fmt.Println(b)
+      fmt.Println(c)
+      fmt.Println(d)
+  }
+4. 下面这段代码输出什么？为什么？
+
+type People interface {
+    Show()
+}
+
+type Student struct{}
+
+func (stu *Student) Show() {
+
+}
+
+func main() {
+
+    var s *Student
+    if s == nil {
+        fmt.Println("s is nil")
+    } else {
+        fmt.Println("s is not nil")
+    }
+    var p People = s
+    if p == nil {
+        fmt.Println("p is nil")
+    } else {
+        fmt.Println("p is not nil")
+    }
+}
+
+5.下面这段代码输出什么？为什么？
+
+func (i int) PrintInt ()  {
+    fmt.Println(i)
+}
+
+func main() {
+    var i int = 1
+    i.PrintInt()
+}
+A. 1
+B. compilation error
+
+6. 下面这段代码输出什么？为什么？
+
+type People interface {
+    Speak(string) string
+}
+
+type Student struct{}
+
+func (stu *Student) Speak(think string) (talk string) {
+    if think == "speak" {
+        talk = "speak"
+    } else {
+        talk = "hi"
+    }
+    return
+}
+
+func main() {
+    var peo People = Student{}
+    think := "speak"
+    fmt.Println(peo.Speak(think))
+}
+A. speak
+B. compilation error
+
+7.下面的两个切片声明中有什么区别？哪个更可取？
+
+A. var a []int
+B. a := []int{}
+
+8. A、B、C、D 哪些选项有语法错误？
+
+type S struct {
+}
+
+func f(x interface{}) {
+}
+
+func g(x *interface{}) {
+}
+
+func main() {
+    s := S{}
+    p := &s
+    f(s) //A
+    g(s) //B
+    f(p) //C
+    g(p) //D
+}
+
+9. 下面 A、B 两处应该填入什么代码，才能确保顺利打印出结果？
+
+type S struct {
+    m string
+}
+
+func f() *S {
+    return __  //A
+}
+
+func main() {
+    p := __    //B
+    fmt.Println(p.m) //print "foo"
+}
+10. 下面的代码有几处语法问题，各是什么？
+
+  package main
+  import (
+      "fmt"
+  )
+  func main() {
+      var x string = nil
+      if x == nil {
+          x = "default"
+      }
+      fmt.Println(x)
+  }
+ 
+ 11. return 之后的 defer 语句会执行吗，下面这段代码输出什么？
+
+var a bool = true
+func main() {
+    defer func(){
+        fmt.Println("1")
+    }()
+    if a == true {
+        fmt.Println("2")
+        return
+    }
+    defer func(){
+        fmt.Println("3")
+    }()
+}
+
+12. 输出什么？
+  func main() {
+      if a := 1; false {
+      } else if b := 2; false {
+      } else {
+          println(a, b)
+      }
+  }
+  A. 1 2
+  B. compilation error
+
+13. 下面这段代码输出什么？
+
+func main() {
+    m := map[int]string{0:"zero",1:"one"}
+    for k,v := range m {
+        fmt.Println(k,v)
+    }
+}
+
+14. 下面这段代码输出什么？
+
+func main() {
+    a := 1
+    b := 2
+    defer calc("1", a, calc("10", a, b))
+    a = 0
+    defer calc("2", a, calc("20", a, b))
+    b = 1
+}
+
+func calc(index string, a, b int) int {
+    ret := a + b
+    fmt.Println(index, a, b, ret)
+    return ret
+}
+
+15. 下面这段代码输出什么？为什么？
+
+func (i int) PrintInt ()  {
+    fmt.Println(i)
+}
+
+func main() {
+    var i int = 1
+    i.PrintInt()
+}
+A. 1
+B. compilation error
+
+16. 下面这段代码输出什么？为什么？
+
+type People interface {
+    Speak(string) string
+}
+
+type Student struct{}
+
+func (stu *Student) Speak(think string) (talk string) {
+    if think == "speak" {
+        talk = "speak"
+    } else {
+        talk = "hi"
+    }
+    return
+}
+
+func main() {
+    var peo People = Student{}
+    think := "speak"
+    fmt.Println(peo.Speak(think))
+}
+A. speak
+B. compilation error
+
+17. 下面这段代码输出什么？
+
+func main() {
+    var a = [5]int{1, 2, 3, 4, 5}
+    var r [5]int
+
+    for i, v := range a {
+        if i == 0 {
+            a[1] = 12
+            a[2] = 13
+        }
+        r[i] = v
+    }
+    fmt.Println("r = ", r)
+    fmt.Println("a = ", a)
+}
+
+18. 下面这段代码输出什么？
+
+func change(s ...int) {
+    s = append(s,3)
+}
+
+func main() {
+    slice := make([]int,5,5)
+    slice[0] = 1
+    slice[1] = 2
+    change(slice...)
+    fmt.Println(slice)
+    change(slice[0:2]...)
+    fmt.Println(slice)
+}
+
+
