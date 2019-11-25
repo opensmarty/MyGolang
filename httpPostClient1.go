@@ -1,27 +1,55 @@
 /*
  *  http client 端
  */
- package main
+package main
 
 import (
-	"fmt"
-	"net/http"
-	"net/url"
+    "fmt"
+    "net/http"
+    "net/url"
+    "strconv"
+    "strings"
 )
 
+func sendPost1() {
+    data := make(url.Values)
+    data["name"] = []string{"rnben"}
+
+    res, err := http.PostForm("http://127.0.0.1/tpost", data)
+    if err != nil {
+        fmt.Println(err.Error())
+        return
+    }
+    defer res.Body.Close()
+    fmt.Println("post send success")
+}
+
+func sendPost2() {
+    apiUrl := "http://127.0.0.1"
+    resource := "/tpost"
+    data := url.Values{}
+    data.Set("name", "rnben")
+
+    u, _ := url.ParseRequestURI(apiUrl)
+    u.Path = resource
+    urlStr := u.String() // "http://127.0.0.1/tpost"
+
+    client := &http.Client{}
+    r, _ := http.NewRequest("POST", urlStr, strings.NewReader(data.Encode())) // URL-encoded payload
+    r.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+    r.Header.Add("Content-Length", strconv.Itoa(len(data.Encode())))
+
+    resp, err := client.Do(r)
+    if err != nil {
+        fmt.Println(err.Error())
+        return
+    }
+    defer resp.Body.Close()
+    fmt.Println("post send success")
+
+}
+
 func main() {
-	//这里添加post的body内容
-	data := make(url.Values)
-	data["key"] = []string{"this is key"}
-	data["value"] = []string{"this is value"}
-
-	//把post表单发送给目标服务器
-	res, err := http.PostForm("http://127.0.0.1/postpage", data)
-	if err != nil {
-		fmt.Println(err.Error())
-		return
-	}
-	defer res.Body.Close()
-
-	fmt.Println("post send success")
+    sendPost1()
+    sendPost2()
 }
