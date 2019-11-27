@@ -222,4 +222,73 @@ recover() 必须在 defer() 函数中调用才有效，所以第 9 行代码捕�
 		fmt.Print(v)     //输出 abc
 	    }
 	}
+29. 参考答案及解析：编译报错cannot take the address of i。
+	知识点：常量。常量不同于变量的在运行期分配内存，常量通常会被编译器在预处理阶段直接展开，作为指令数据使用，所以常量无法寻址	
+
+30. 参考答案及解析：程序抛异常。先定义下，第一个协程为 A 协程，第二个协程为 B 协程；当 A 协程还没起时，主协程已经将 channel 关闭了，当 A 协程往关闭的 channel 发送数据时会 panic，panic: send on closed channel
+
+31. 有方向的channle不可能被关闭
+
+32. 参考答案及解析：存在两个问题：1.map 需要初始化才能使用；2.指针不支持索引。
+	修复代码如下：
+
+	func main() {
+	    s := new(Show)
+	    // 修复代码
+	    p := make(Param)
+	    p["day"] = 2
+	    s.Param = &p
+	    tmp := *s.Param
+	    fmt.Println(tmp["day"])
+	}
+
+33. 参考答案及解析：输出[1 0 2 3]，
+	字面量初始化切片时候，可以指定索引，没有指定索引的元素会在前一个索引基础之上加一，所以输出[1 0 2 3]，而不是[1 3 2]
+34. syntax error: unexpected semicolon or newline before {
+	Go 语言中，大括号不能放在单独的一行
+
+35. 参考答案及解析：运行时错误。如果类型实现 String() 方法，当格式化输出时会自动使用 String() 方法。
+	 fmt.Sprintf将调用String(),导致无限递归，最后栈溢出，报错
+
+36. 参考答案及解析：变量 one、two 和 three 声明未使用。知识点：未使用变量。如果有未使用的变量代码将编译失败。但也有例外，函数中声明的变量必须要使用，但可以有未使用的全局变量。函数的参数未使用也是可以的。
+
+	如果你给未使用的变量分配了一个新值，代码也还是会编译失败。你需要在某个地方使用这个变量，才能让编译器愉快的编译。
+ 后面是一个匿名函数的调用，一般会声名一个函数变量，不会这么用
+
+37. false true false
+类型断言语法：i.(Type)，其中 i 是接口，Type 是类型或接口。编译时会自动检测 i 的动态类型与 Type 是否一致。但是，如果动态类型不存在，则断言总是失败
+
+38. 参考答案及解析：问题：使用 cap() 获取 map 的容量。
+	1.使用 make 创建 map 变量时可以指定第二个参数，不过会被忽略。
+	2.cap() 函数适用于数组、数组指针、slice 和 channel，不适用于 map，可以使用 len() 返回 map 的元素个数
+	map变量其实就是个指针， 跟 切片 类似，for range在 对map的操作会影响原数据，k 与 value的值 是数据的拷贝，range 时，新创建了变量（隐含）
+ 对比
+ 	s := make([]string, 10)
+	fmt.Println(len(s))
+	s[0] = "aa"
+	s[1] = "bb"
+	for k, v := range s {
+		fmt.Println(k, v)
+		if k == 0 {
+			s[1] = "mmm"
+		}
+	}
 	
+39. 参考答案及解析：nil 用于表示 interface、函数、maps、slices 和 channels 的“零值”。
+	如果不指定变量的类型，编译器猜不出变量的具体类型，导致编译错误
+  对比：
+  buildin 类型是可以推到出来的
+	func main() {
+		var str = "aa"
+		var a = 5
+		var p func() = nil
+		fmt.Printf("%T\n%T\n%T\n", str, a, p)
+	}
+输出：string   int    func()
+
+40. 参考答案及解析：编译失败。
+	non-name data.result on left side of :=
+	
+
+
+
