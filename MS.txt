@@ -348,3 +348,126 @@ func main() {
     panic(2)
 }
 
+22. 下面代码里的 counter 的输出值？
+
+func main() {
+
+    var m = map[string]int{
+        "A": 21,
+        "B": 22,
+        "C": 23,
+    }
+    counter := 0
+    for k, v := range m {
+        if counter == 0 {
+            delete(m, "A")
+        }
+        counter++
+        fmt.Println(k, v)
+    }
+    fmt.Println("counter is ", counter)
+}
+A. 2
+B. 3
+C. 2 或 3
+
+23. 下面代码输出什么？
+func main() {
+	a := false
+	switch a {
+	case false:
+		fmt.Println("1")
+	case true:
+		fmt.Println("5")
+	}
+
+	f := func() bool {
+		return false
+	}
+
+	switch f(); {
+	case false:
+		fmt.Println("1")
+	case true:
+		fmt.Println("5")
+	}
+
+	switch f() {
+	case false:
+		fmt.Println("1")
+	case true:
+		fmt.Println("5")
+	}
+}
+24. 下面代码输出正确的是？
+
+func main() {
+    i := 1
+    s := []string{"A", "B", "C"}
+    i, s[i-1] = 2, "Z"
+    fmt.Printf("s: %v \n", s)
+}
+A. s: [Z,B,C]
+B. s: [A,Z,C]
+
+25. 关于变量的自增和自减操作，下面语句正确的是？
+
+A.
+i := 1
+i++
+
+B.
+i := 1
+j = i++
+
+C.
+i := 1
+++i
+
+D.
+i := 1
+i--
+
+26. 下面这段代码能否编译通过？如果通过，输出什么？
+
+type User struct{}
+type User1 User
+type User2 = User
+
+func (i User1) m1() {
+    fmt.Println("m1")
+}
+func (i User) m2() {
+    fmt.Println("m2")
+}
+
+func main() {
+    var i1 User1
+    var i2 User2
+    i1.m1()
+    i2.m2()
+}
+27. 
+下面代码输出什么？
+
+func main() {
+    x := []string{"a", "b", "c"}
+    for v := range x {
+        fmt.Print(v)
+    }
+}
+28. 下面代码是否能编译通过？如果通过，输出什么？
+
+ func Foo(x interface{}) {
+     if x == nil {
+         fmt.Println("empty interface")
+         return
+     }
+     fmt.Println("non-empty interface")
+ }
+ func main() {
+     var x *int = nil
+    Foo(x)
+}
+
+
