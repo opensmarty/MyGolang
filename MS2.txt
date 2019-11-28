@@ -1,0 +1,133 @@
+51. 下面的代码输出什么？
+type T struct {
+     n int
+ }
+ 
+ func main() {
+     ts := [2]T{}
+     for i := range ts[:] {
+         switch t := &ts[i]; i {
+         case 0:
+            t.n = 3;
+           ts[1].n = 9
+        case 1:
+            fmt.Print(t.n, " ")
+        }
+    }
+    fmt.Print(ts)
+}
+
+52. 下面代码输出什么？
+func test(x int) (func(), func()) {
+	return func() {
+			Println(x)
+			x += 10
+		}, func() {
+			Println(x)
+		}
+}
+
+func main() {
+	a, b := test(100)
+	a()
+	b()
+}
+
+53. 下面代码输出什么？
+type Math struct {
+	x, y int
+}
+
+var m = map[string]Math{
+	"foo": Math{2, 3},
+}
+
+func main() {
+	m["foo"].x = 4
+	Println(m["foo"].x)
+}
+
+54. 下面的代码有几处问题？请详细说明
+
+ type T struct {
+     n int
+ }
+ 
+ func (t *T) Set(n int) {
+     t.n = n
+ }
+ 
+ func getT() T {
+    return T{}
+}
+
+func main() {
+    getT().Set(1)
+}
+
+55. 输出什么？
+type N int
+
+func (n N) test() {
+	fmt.Println(n)
+}
+
+func main() {
+	var n N = 10
+	fmt.Println(n)
+
+	n++
+	f1 := N.test
+	f1(n)
+
+	n++
+	f2 := (*N).test
+	f2(&n)
+}
+56. 下面的代码有什么问题？
+
+ func (n N) value(){
+     n++
+     fmt.Printf("v:%p,%v\n",&n,n)
+ }
+ 
+ func (n *N) pointer(){
+     *n++
+     fmt.Printf("v:%p,%v\n",n,*n)
+ }
+
+
+func main() {
+
+    var a N = 25
+
+    p := &a
+    p1 := &p
+
+    p1.value()
+    p1.pointer()
+}
+
+57. 输出什么内容
+type N int
+
+func (n N) test() {
+	fmt.Println(n)
+}
+
+func main() {
+	var n N = 10
+	p := &n
+
+	n++
+	f1 := n.test
+
+	n++
+	f2 := p.test
+
+	n++
+	fmt.Println(n)
+
+	f1()
+	f2()
+}
