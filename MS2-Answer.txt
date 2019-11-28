@@ -1,0 +1,170 @@
+51. 参考答案及解析：9 [{3} {9}]
+  知识点：for-range 切片。for-range 切片时使用的是切片的副本，但不会复制底层数组，换句话说，此副本切片与原数组共享底层数组
+  ========   对比1  ================
+  type T struct {
+     n int
+ }
+ 
+ func main() {
+     ts := [2]T{}
+     for i, t := range ts {
+         switch i {
+         case 0:
+            t.n = 3
+            ts[1].n = 9
+        case 1:
+            fmt.Print(t.n, " ")
+        }
+    }
+    fmt.Print(ts)
+}
+输出 0 [{0} {9}]。知识点：for-range 循环数组。此时使用的是数组 ts 的副本，所以 t.n = 3 的赋值操作不会影响原数组
+============== 对比2  =================
+  type T struct {
+     n int
+ }
+ 
+ func main() {
+     ts := [2]T{}
+     for i, t := range &ts {
+         switch i {
+         case 0:
+            t.n = 3
+            ts[1].n = 9
+        case 1:
+            fmt.Print(t.n, " ")
+        }
+    }
+    fmt.Print(ts)
+}
+输出 9 [{0} {9}]。知识点：for-range 数组指针。for-range 循环中的循环变量 t 是原数组元素的副本。如果数组元素是结构体值，则副本的字段和原数组字段是两个不同的值
+
+52. 100 110
+    知识点：闭包——保存了环境；多项赋值顺序 —— 自右向左 “：=”
+
+53. 编译出错，结构体字面量字段不可寻址
+    修改
+    type Math struct {
+      x, y int
+    }
+
+    var m = map[string]*Math{
+      "foo": &Math{2, 3},
+    }
+
+    func main() {
+      m["foo"].x = 4
+      Println(m["foo"].x)
+    }
+        对比 ： 编译报错 cannot assign to getT().n
+    type T struct {
+      n int
+    }
+
+    func getT() T {
+      return T{}
+    }
+
+    func main() {
+      getT().n = 1
+    }
+    对比：编译通过
+    type T struct {
+      n int
+    }
+
+    func getT() *T {
+      return &T{}
+    }
+
+    func main() {
+      getT().n = 1
+    }
+    或者
+    type T struct {
+       n int
+     }
+
+     func getT() T {
+         return T{}
+     }
+
+     func main() {
+        t := getT()
+        p := &t.n    // <=> p = &(t.n)
+        *p = 1
+        fmt.Println(t.n)
+    }
+
+54. 参考答案及解析：有两处问题：
+
+1.直接返回的 T{} 不可寻址；
+2.不可寻址的结构体不能调用带结构体指针接收者的方法
+修复代码：
+type T struct {
+     n int
+ }
+ 
+ func (t *T) Set(n int) {
+     t.n = n
+ }
+ 
+ func getT() T {
+    return T{}
+}
+
+func main() {
+    t := getT()
+    t.Set(2)
+    fmt.Println(t.n)
+}
+55. 参考答案及解析：10 11 12
+    知识点：方法表达式。通过类型引用的方法表达式会被还原成普通函数样式，接收者是第一个参数，调用时显示传参。
+    类型可以是 T 或 *T，只要目标方法存在于该类型的方法集中就可以
+    还可以直接使用方法表达式调用：
+      func main()  {
+       var n N = 10
+
+       fmt.Println(n)
+
+       n++
+       N.test(n)
+
+       n++
+      (*N).test(&n)
+    }
+
+56. 参考答案及解析：编译错误：
+  calling method value with receiver p1 (type **N) requires explicit dereference
+  calling method pointer with receiver p1 (type **N) requires explicit dereference
+  不能使用多级指针调用方法
+  
+57. 参考答案及解析：13 11 12
+  对比程序：
+  type N int
+
+  func (n *N) test() {
+    fmt.Println(*n)
+  }
+
+  func main() {
+    var n N = 10
+    p := &n
+
+    n++
+    f1 := n.test
+
+    n++
+    f2 := p.test
+
+    n++
+    fmt.Println(n)
+
+    f1()
+    f2()
+  }
+输出：13 13 13，接收者是指针类型
+
+
+    
+
