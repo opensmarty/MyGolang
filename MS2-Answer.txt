@@ -165,6 +165,98 @@ func main() {
   }
 输出：13 13 13，接收者是指针类型
 
+对比程序：
+type N int
+ 
+ func (n N) test(){
+     fmt.Println(n)
+ }
+ 
+ func main()  {
+     var n N = 10
+     fmt.Println(n)
 
-    
+    n++
+    f1 := N.test
+    f1(n)
 
+    n++
+    f2 := (*N).test
+    f2(&n)
+}
+输出：0 11 12。知识点：方法表达式。通过类型引用的方法表达式会被还原成普通函数样式，接收者是第一个参数，调用时显示传参。类型可以是 T 或 *T，只要目标方法存在于该类型的方法集中就可以
+还可以直接使用方法表达式调用
+
+  func main()  {
+      var n N = 10
+
+       fmt.Println(n)
+
+       n++
+       N.test(n)
+
+       n++
+      (*N).test(&n)
+  }
+
+58. 参考答案及解析：第 8 行。因为两个比较值的动态类型为同一个 不可比较类型；不可比较类型有哪些？
+59. 参考答案及解析：321。第一次循环，写操作已经准备好，执行 o(3)，输出 3；第二次，读操作准备好，执行 o(2)，输出 2 并将 c 赋值为 nil；第三次，由于 c 为 nil，走的是 default 分支，输出 1
+
+60. 参考答案：第 6 行，截取符号 [i:j]，如果 j 省略，默认是原切片或者数组的长度，x 的长度是 2，小于起始下标 6 ，所以 panic
+
+61. 参考答案及解析：锁失效。将 Mutex 作为匿名字段时，相关的方法必须使用指针接收者，否则会导致锁机制失效
+  修复代码：
+  func (d *data) test(s string)  {     // 指针接收者
+    d.Lock()
+    defer d.Unlock()
+
+    for i:=0;i<5 ;i++  {
+        fmt.Println(s,i)
+        time.Sleep(time.Second)
+    }
+  }
+或者可以通过嵌入 *Mutex 来避免复制的问题，但需要初始化
+type data struct {
+    *sync.Mutex     // *Mutex
+}
+
+func (d data) test(s string) {    // 值方法
+    d.Lock()
+    defer d.Unlock()
+
+    for i := 0; i < 5; i++ {
+        fmt.Println(s, i)
+        time.Sleep(time.Second)
+    }
+}
+
+func main() {
+
+    var wg sync.WaitGroup
+    wg.Add(2)
+
+    d := data{new(sync.Mutex)}   // 初始化
+
+    go func() {
+        defer wg.Done()
+        d.test("read")
+    }()
+
+    go func() {
+        defer wg.Done()
+        d.test("write")
+    }()
+
+    wg.Wait()
+}
+
+62. 参考答案及解析：第 19 行，因为 s.bar 将被展开为 (*s.T).bar，而 s.T 是个空指针，解引用会 panic
+可以使用下面代码输出 s：
+func main() {
+    s := S{}
+    fmt.Printf("%#v",s)   // 输出：main.S{T:(*main.T)(nil)}
+}
+
+63. 参考答案及解析：932 
+  (*[3]int)(nil)  怎么理解？
+  
