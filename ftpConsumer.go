@@ -8,6 +8,7 @@
 			4. 删除处理过的txt文件，删除 十分钟之前的文件（有些问题文件读不出内容）
 			5. 重连
 	ftp库："github.com/jlaffaye/ftp"
+	log库："github.com/jander/golog/logger"
 	目錄結構：myPro/bin
 				myPro/log
 				myPro/conf
