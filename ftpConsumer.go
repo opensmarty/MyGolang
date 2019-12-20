@@ -37,6 +37,8 @@
    坑3：
        经观察发现 ftp句柄 读文件 或 拉文件名出错，需要15分钟才能返回
         原因暂时未知，需要跟一下代码
+   坑4：向接口发送数据时，接口总是返回解析失败，原来是 http 的 "Content-Type" 不对。接口那边将 body以 json 字符串解析 对应的类型是 "application/json"
+   	 而我们的头里填的是 表单 类型，body 却是 json 字符串类型，所以接口那边apache解析出错 client.Post(platformAPI, "application/x-www-form-urlencoded", body)
   心得：      
   不要浮躁，有问题了，要简化问题，挨个调试功能点，找出问题所在，然后潜心看代码，积极解决问题
   问题实在解决不了，再曲线救国，寻找替代方案
