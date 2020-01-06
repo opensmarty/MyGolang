@@ -12,6 +12,7 @@
  * 坑3：windows 平台的目录引用
  *      错误的引用方式："D:\FTP\YDHDJ1" 或 "D:/FTP/YDHDJ1"
  *      正确的引用方式："D:\\FTP\\YDHDJ1"
+ * 编译：GOOS=windows GOARCH=amd64 go build folderMoniter.go
  */
  
 
