@@ -96,17 +96,18 @@ func (p *program) run() {
 	myServer.myHttp.Handler = mux
 
 	if !checkPathExist(workDir) {
-		logger.Error("workDir not exist!", "Exit!")
+		rotatingHandler.Error("workDir not exist!", "Exit!")
 		os.Exit(1)
 	}
 	go myServer.handleCallPolice()
 	myServer.myHttp.Addr = httpPort
 	herr := myServer.myHttp.ListenAndServe()
 	if herr != nil {
-		logger.Error("Init httpServer err:", herr.Error())
+		/*注意：直接用 logger.Error() ，会导致定位错误的代码文件和行号*/
+		rotatingHandler.Error("Init httpServer err:", herr.Error())
 		os.Exit(1)
 	}
-	logger.Info("===== start =====")
+	rotatingHandler.Info("===== start =====")
 	select {}
 }
 
@@ -179,7 +180,7 @@ func (s *Server) callPolice(w http.ResponseWriter, r *http.Request) {
 	rCallPolice := &CallPolice{}
 	rBody, rerr := ioutil.ReadAll(r.Body)
 	if rerr != nil {
-		logger.Error("rBody err:", r.Body)
+		rotatingHandler.Error("rBody err:", r.Body)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -189,11 +190,11 @@ func (s *Server) callPolice(w http.ResponseWriter, r *http.Request) {
 	rBodyStr, _ := url.QueryUnescape(string(rBody))
 	err := json.Unmarshal([]byte(rBodyStr), rCallPolice)
 	if err != nil {
-		logger.Error(err.Error())
+		rotatingHandler.Error(err.Error())
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	logger.Info("RecvHttpData:", *rCallPolice)
+	rotatingHandler.Info("RecvHttpData:", *rCallPolice)
 	s.policeData <- rCallPolice
 	// client 用ajax请求
 	w.Header().Add("Access-Control-Allow-Origin", "*")
@@ -209,12 +210,12 @@ func (s *Server) handleCallPolice() {
 			dataFileName := workDir + "\\" + fileName
 			sMsg, err := json.Marshal(msg)
 			if err != nil {
-				logger.Error(err.Error())
+				rotatingHandler.Error(err.Error())
 			}
-			logger.Info(caller, dataFileName, len(sMsg))
+			rotatingHandler.Info(caller, dataFileName, len(sMsg))
 			fHandle, err := os.Create(dataFileName)
 			if err != nil {
-				logger.Info("Create file err:", err.Error())
+				rotatingHandler.Info("Create file err:", err.Error())
 				if fHandle != nil {
 					fHandle.Close()
 				}
@@ -222,10 +223,10 @@ func (s *Server) handleCallPolice() {
 			}
 			_, err = fHandle.Write(sMsg)
 			if err != nil {
-				logger.Error("Write file err:", err.Error())
+				rotatingHandler.Error("Write file err:", err.Error())
 			}
 
-			logger.Info("Write file OK!")
+			rotatingHandler.Info("Write file OK!")
 			if fHandle != nil {
 				fHandle.Close()
 			}
