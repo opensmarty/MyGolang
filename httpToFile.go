@@ -1,3 +1,8 @@
+/*
+	1. 开发一个 http 接口，用于接收数据（urlencode）
+  	2. 将 接收到的 http数据 以文件的形式存储至本地目录
+	3. 作为 windows 服务跑起来
+*/
 package main
 
 import (
