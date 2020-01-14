@@ -43,7 +43,7 @@ func main() {
 	strjss := url.QueryEscape(string(jss))
 	body := bytes.NewReader([]byte(strjss))
 	client := &http.Client{}
-	presp, perr := client.Post("http://127.0.0.1:5656/Location/callPolice", "application/x-www-form-urlencoded", body)
+	presp, perr := client.Post("http://127.0.0.1:5656/Location/callPolice", "application/json", body)
 	if perr != nil {
 		fmt.Println(perr.Error())
 		return
