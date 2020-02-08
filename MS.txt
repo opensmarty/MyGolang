@@ -34,21 +34,26 @@
   B. compilation error
 3.下面这段代码输出什么？
 
-  const (
-      a = iota
-      b = iota
-  )
-  const (
-      name = "name"
-      c    = iota
-      d    = iota
-  )
-  func main() {
-      fmt.Println(a)
-      fmt.Println(b)
-      fmt.Println(c)
-      fmt.Println(d)
-  }
+const (
+	a = iota
+	b = iota
+)
+const (
+	name = "name"
+	c    = iota
+	d   
+	e= "aasf"
+	f 
+	h  =iota
+	m 
+)
+func main() {
+	fmt.Println(a)
+	fmt.Println(b)
+	fmt.Println(d)
+	fmt.Println(f)
+	fmt.Println(m)
+}
 4. 下面这段代码输出什么？为什么？
 
 type People interface {
