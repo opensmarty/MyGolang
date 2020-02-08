@@ -69,8 +69,39 @@ iota 在 const 关键字出现时将被重置为0，const中每新增一行常�
 
 7. 参考答案及解析：A 声明的是 nil 切片；B 声明的是长度和容量都为 0 的空切片。第一种切片声明不会分配内存，优先选择
 8. 参考答案及解析：BD。函数参数为 interface{} 时可以接收任何类型的参数，包括用户自定义类型等，即使是接收指针类型也用 interface{}，而不是使用 *interface{}。
+注意： *interface{} 是接口指针，它接收的参数必须是接口变量的指针
+func main() {
+	var myinterface interface{}
+   	s := S{}
+	p := &s
+	myinterface = p
+    	f(s) //A
+	f(p) //C
+    	g(&myinterface) //D
+}
+下面这样虽然可编译，但不建议用：永远不要使用一个指针指向一个接口类型，因为它已经是一个指针
+type i interface{
+}
+type S struct {
+}
 
-  永远不要使用一个指针指向一个接口类型，因为它已经是一个指针
+func f(x interface{}) {
+}
+
+func g(x *i) {
+}
+
+func main() {
+	var myinterface i
+	s := S{}
+	p := &s
+	myinterface = p
+    	f(s) //A
+  	// g(s) //B
+    	f(p) //C
+    	g(&myinterface) //D
+}
+  
 9. A. &S{"foo"} 
   B. *f() 或者 f()
   f() 函数返回参数是指针类型，所以可以用 & 取结构体的指针；B 处，如果填 *f()，则 p 是 S 类型；如果填 f()，则 p 是 *S 类型，不过都可以使用 p.m 取得结构体的成员
