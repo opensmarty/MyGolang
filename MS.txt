@@ -226,31 +226,6 @@ func calc(index string, a, b int) int {
     return ret
 }
 
-16. 下面这段代码输出什么？为什么？
-
-type People interface {
-    Speak(string) string
-}
-
-type Student struct{}
-
-func (stu *Student) Speak(think string) (talk string) {
-    if think == "speak" {
-        talk = "speak"
-    } else {
-        talk = "hi"
-    }
-    return
-}
-
-func main() {
-    var peo People = Student{}
-    think := "speak"
-    fmt.Println(peo.Speak(think))
-}
-A. speak
-B. compilation error
-
 17. 下面这段代码输出什么？
 
 func main() {
