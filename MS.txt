@@ -324,7 +324,7 @@ func main() {
      defer recover() 
     panic(2)
 }
-22. 输出什么？
+22-1. 输出什么？
 func main() {
      defer func() {
         fmt.Print(recover())
@@ -337,6 +337,35 @@ func main() {
     }()
     defer recover()
     panic(2)
+}
+22-2. 输出什么？
+
+func main() {
+	defer_call()
+	defer_call2()
+}
+
+func defer_call() {
+	defer func() {
+		fmt.Println(recover())
+		fmt.Println(recover())
+		fmt.Println("打印前")
+	}()
+	defer func() {
+		fmt.Println(recover())
+		fmt.Println("打印中")
+		panic("触发异常11")
+	}()
+	defer func() {
+		fmt.Println("打印后")
+		panic("触发异常11")
+	}()
+	panic("触发异常")
+	fmt.Println("func defer_call")
+}
+
+func defer_call2() {
+	fmt.Println("func defer_call2")
 }
 
 23. 下面代码输出什么？
