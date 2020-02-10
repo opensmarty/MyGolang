@@ -354,7 +354,7 @@ func defer_call() {
 	defer func() {
 		fmt.Println(recover())
 		fmt.Println("打印中")
-		panic("触发异常11")
+		panic("触发异常22")
 	}()
 	defer func() {
 		fmt.Println("打印后")
