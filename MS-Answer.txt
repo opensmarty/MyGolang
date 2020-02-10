@@ -204,13 +204,12 @@ a =  [1 12 13 4 5]
 
 20. 参考答案及解析：C
 recover() 必须在 defer 闭包 函数中 直接 调用才有效。
-面其他几种情况调用都是 无效 的：
-	1. 直接调用   defer recover()
-	2. 非闭包调用 defer fmt.Println(recover()) 
-	3. defer嵌套调用 
+	下面两种调用都是 无效 的：
+	1. 非闭包调用  defer recover() 或  defer fmt.Println(recover()) 
+	2. defer嵌套调用 
 		defer func(){
 			defer func(){
-				fmt.Println(recover())	// 捕获不到panic(1) 可以捕获到 panic(2)，闭包特性
+				fmt.Println(recover())	// 捕获不到panic(1) 可以捕获到 panic(2)，defer 特性,后注册的先执行
 			}()
 			panic(2)
 		}()
@@ -233,7 +232,21 @@ recover() 必须在 defer 闭包中调用才有效，所以第 9 行代码捕获
       解析：
       如果 panic 消息在该 defer 中未被捕获，那么 该defer 中的 panic 将替代之前的panic 消息
 
-23. 输出：1 5 1
+23. 输出：
+	false
+	false
+	true
+	true
+	false
+    解析：
+    	1. 如果 switch语句 没有了条件变量，那么 case 会跟 true 做比较，也就是说，如果 switch 没有条件，那么 条件就是 true
+	2. switch语句 后面要跟 条件变量，或 条件表达式
+	第一个 switch 很普通，不用多说
+	第二个 False() 的返回值作为 switch 的条件变量， 本质与第一个相同
+	第三个 switch 后面的 False()后面加了个分号，False() 是单纯的函数调用，即非条件变量，也非条件表达式， 跟 switch 没啥关系，相当于 switch 没有了条件，所以 输出 true
+	第四个switch 是第三个的本质
+第五个switch ，使用了 条件表达式，m 的作用域就是该 switch 语句
+
 24. 参考答案及解析：A。知识点：多重赋值
 	多重赋值分为两个步骤，有先后顺序：从左至右，先计算等号左边的索引表达式和取址表达式，后计算等号右边的表达式；
 	赋值顺序：从左至右挨个为变量赋值
