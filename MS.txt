@@ -369,33 +369,48 @@ func defer_call2() {
 }
 
 23. 下面代码输出什么？
+func False() bool {
+	return false
+}
+
 func main() {
 	a := false
 	switch a {
 	case false:
-		fmt.Println("1")
+		fmt.Println("false")
 	case true:
-		fmt.Println("5")
+		fmt.Println("true")
 	}
 
-	f := func() bool {
-		return false
-	}
-
-	switch f(); {
+	switch False() {
 	case false:
-		fmt.Println("1")
+		fmt.Println("false")
 	case true:
-		fmt.Println("5")
+		fmt.Println("true")
 	}
 
-	switch f() {
+	switch False(); {
 	case false:
-		fmt.Println("1")
+		fmt.Println("false")
 	case true:
-		fmt.Println("5")
+		fmt.Println("true")
+	}
+
+	switch {
+	case false:
+		fmt.Println("false")
+	case true:
+		fmt.Println("true")
+	}
+	
+	switch m := False(); {
+	case m == false:
+		fmt.Println("false")
+	case m == true:
+		fmt.Println("true")
 	}
 }
+
 24. 下面代码输出正确的是？
 
 func main() {
