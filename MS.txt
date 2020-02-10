@@ -243,7 +243,31 @@ func main() {
     fmt.Println("a = ", a)
 }
 
-18. 下面这段代码输出什么？
+18. 下面代码里的 counter 的输出值？
+
+func main() {
+
+    var m = map[string]int{
+        "A": 21,
+        "B": 22,
+        "C": 23,
+    }
+    counter := 0
+    for k, v := range m {
+        if counter == 0 {
+            delete(m, "A")
+        }
+        counter++
+        fmt.Println(k, v)
+    }
+    fmt.Println("counter is ", counter)
+}
+A. 2
+B. 3
+C. 2 或 3
+
+
+19. 下面这段代码输出什么？
 
 func change(s ...int) {
     s = append(s,3)
@@ -259,7 +283,7 @@ func main() {
     fmt.Println(slice)
 }
 
-19. 下面列举的是 recover() 的几种调用方式，哪些是正确的？
+20. 下面列举的是 recover() 的几种调用方式，哪些是正确的？
 
 A.
 func main() {
@@ -288,7 +312,7 @@ func main() {
     panic(1)
 }
 
-20. 下面代码输出什么，请说明？
+21. 下面代码输出什么，请说明？
 func main() {
      defer func() {
          fmt.Print(recover())
@@ -300,7 +324,7 @@ func main() {
      defer recover() 
     panic(2)
 }
-21. 输出什么？
+22. 输出什么？
 func main() {
      defer func() {
         fmt.Print(recover())
@@ -314,29 +338,6 @@ func main() {
     defer recover()
     panic(2)
 }
-
-22. 下面代码里的 counter 的输出值？
-
-func main() {
-
-    var m = map[string]int{
-        "A": 21,
-        "B": 22,
-        "C": 23,
-    }
-    counter := 0
-    for k, v := range m {
-        if counter == 0 {
-            delete(m, "A")
-        }
-        counter++
-        fmt.Println(k, v)
-    }
-    fmt.Println("counter is ", counter)
-}
-A. 2
-B. 3
-C. 2 或 3
 
 23. 下面代码输出什么？
 func main() {
