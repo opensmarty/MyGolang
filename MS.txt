@@ -411,6 +411,22 @@ func main() {
 	}
 }
 
+47. 下面代码输出什么？
+
+ func main() {
+     isMatch := func(i int) bool {
+         switch(i) {
+         case 1:
+         case 2:
+             return true
+         }
+         return false
+     }
+
+    fmt.Println(isMatch(1))
+    fmt.Println(isMatch(2))
+}
+
 24. 下面代码输出正确的是？
 
 func main() {
@@ -459,6 +475,20 @@ func main() {
     i1.m1()
     i2.m2()
 }
+
+41. 下面代码输出什么？
+
+ func test(x byte)  {
+     fmt.Println(x)
+ }
+ 
+ func main() {
+     var a byte = 0x11 
+     var b uint8 = a
+     var c uint8 = a + b
+     test(c)
+}
+
 27. 
 下面代码输出什么？
 
@@ -507,9 +537,20 @@ func main() {
     time.Sleep(time.Second * 10)
 }
 
-31. .下面的代码有什么问题？
+31. 下面的代码有什么问题？
 func Stop(stop <-chan bool) {
     close(stop)
+}
+
+43. 下面代码输出什么？
+func main() {
+    var ch chan int
+    select {
+    case v, ok := <-ch:
+        println(v, ok)
+    default:
+        println("default") 
+    }
 }
 
 32. 下面这段代码存在什么问题？
@@ -590,12 +631,24 @@ func main() {
 37. 下面代码输出什么？
 
 func main() {
-    x := interface{}(nil)
-    y := (*int)(nil)
-    a := y == x
-    b := y == nil
-    _, c := x.(interface{})
-    println(a, b, c)
+	x := interface{}(nil)
+	y := (*int)(nil)
+	a := y == x
+	b := y == nil
+	d := x == nil
+	_, c := x.(interface{})
+	println(a, b, c, d)
+}
+
+48. 下面的代码能否正确输出？
+
+func main() {
+    var fn1 = func() {}
+    var fn2 = func() {}
+
+    if fn1 != fn2 {
+        println("fn1 not equal fn2")
+    }
 }
 
 38. 下面代码有什么问题？
@@ -628,31 +681,6 @@ func main() {
 		fmt.Println(err)
 	}
 	fmt.Printf("info: %+v\n", data)
-}
-
-41. 下面代码输出什么？
-
- func test(x byte)  {
-     fmt.Println(x)
- }
- 
- func main() {
-     var a byte = 0x11 
-     var b uint8 = a
-     var c uint8 = a + b
-     test(c)
-}
-
-43. 下面代码输出什么？
-
-func main() {
-    var ch chan int
-    select {
-    case v, ok := <-ch:
-        println(v, ok)
-    default:
-        println("default") 
-    }
 }
 
 44. 下面这段代码输出什么？
@@ -699,33 +727,6 @@ func main() {
     fmt.Println(t.ls[0])
 }
 
-47. 下面代码输出什么？
-
- func main() {
-     isMatch := func(i int) bool {
-         switch(i) {
-         case 1:
-         case 2:
-             return true
-         }
-         return false
-     }
-
-    fmt.Println(isMatch(1))
-    fmt.Println(isMatch(2))
-}
-
-48. 下面的代码能否正确输出？
-
-func main() {
-    var fn1 = func() {}
-    var fn2 = func() {}
-
-    if fn1 != fn2 {
-        println("fn1 not equal fn2")
-    }
-}
-
 49. 下面代码输出什么？
 
 type T struct {
@@ -747,7 +748,6 @@ func main() {
  }
  
  func main() {
- 
      var a *X
     a.test()
 
