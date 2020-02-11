@@ -230,7 +230,7 @@ recover() 必须在 defer 闭包中调用才有效，所以第 9 行代码捕获
 	打印前
 	func defer_call2
       解析：
-      如果 panic 消息在该 defer 中未被捕获，那么 该defer 中的 panic 将替代之前的panic 消息
+      如果 panic 消息在该 defer 中未被捕获，那么 该defer 中的 panic(非嵌套defer) 将替代之前的panic 消息。
 
 23. 输出：
 	false
