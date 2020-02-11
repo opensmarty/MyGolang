@@ -481,14 +481,7 @@ func main() {
      var x *int = nil
     Foo(x)
 }
-29. 下面代码有什么问题？
-	const i = 100
-	var j = 123
 
-	func main() {
-    	fmt.Println(&j, j)
-    	fmt.Println(&i, i)
-	}
 30. 下面代码输出什么？
 func main() {
      ch := make(chan int, 100)
@@ -576,6 +569,24 @@ func main()
         fmt.Println("Unused arg. No compile error")
     }("what?")
 }
+
+42. 下面的代码有什么问题？
+
+func main() {
+    const x = 123
+    const y = 1.23
+    fmt.Println(x)
+}
+
+29. 下面代码有什么问题？
+	const i = 100
+	var j = 123
+
+	func main() {
+    	fmt.Println(&j, j)
+    	fmt.Println(&i, i)
+	}
+	
 37. 下面代码输出什么？
 
 func main() {
@@ -630,14 +641,6 @@ func main() {
      var b uint8 = a
      var c uint8 = a + b
      test(c)
-}
-
-42. 下面的代码有什么问题？
-
-func main() {
-    const x = 123
-    const y = 1.23
-    fmt.Println(x)
 }
 
 43. 下面代码输出什么？
