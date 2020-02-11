@@ -247,6 +247,35 @@ recover() 必须在 defer 闭包中调用才有效，所以第 9 行代码捕获
 	第四个switch 是第三个的本质
 第五个switch ，使用了 条件表达式，m 的作用域就是该 switch 语句
 
+47. 参考答案及解析：false true。Go 语言的 switch 语句虽然没有"break"，但如果 case 完成程序会默认 break，可以在 case 语句后面加上关键字 fallthrough，这样就会接着走下一个 case 语句（不用匹配后续条件表达式）。或者，利用 case 可以匹配多个值的特性
+
+ 修复代码
+ func main() {
+     isMatch := func(i int) bool {
+         switch(i) {
+         case 1:
+             fallthrough
+         case 2:
+             return true
+         }
+         return false
+    }
+
+    fmt.Println(isMatch(1))     // true
+    fmt.Println(isMatch(2))     // true
+
+    match := func(i int) bool {
+        switch(i) {
+        case 1,2:
+            return true
+        }
+        return false
+    }
+
+    fmt.Println(match(1))       // true
+    fmt.Println(match(2))       // true
+}
+
 24. 参考答案及解析：A。知识点：多重赋值
 	多重赋值分为两个步骤，有先后顺序：从左至右，先计算等号左边的索引表达式和取址表达式，后计算等号右边的表达式；
 	赋值顺序：从左至右挨个为变量赋值
@@ -278,6 +307,8 @@ recover() 必须在 defer 闭包中调用才有效，所以第 9 行代码捕获
 	第 2 行代码基于类型 User 创建了新类型 User1，第 3 行代码是创建了 User 的类型别名 User2，
 	注意使用 = 定义类型别名。因为 User2 是别名，完全等价于 User，所以 User2 具有 User 所有的方法。但是 i1.m2() 是不能执行的，
 	因为 User1 没有定义该方法
+	
+41. 参考答案及解析：34。与 rune 是 int32 的别名一样，byte 是 uint8 的别名，别名类型无序转换，可直接转换	
 
 27.参考答案及解析：012。注意区别下面代码段：
 
@@ -295,6 +326,11 @@ recover() 必须在 defer 闭包中调用才有效，所以第 9 行代码捕获
 30. 参考答案及解析：程序抛异常。先定义下，第一个协程为 A 协程，第二个协程为 B 协程；当 A 协程还没起时，主协程已经将 channel 关闭了，当 A 协程往关闭的 channel 发送数据时会 panic，panic: send on closed channel
 
 31. 有方向的channle不可能被关闭
+
+43. default 
+	1. ch 值为 nil，未被初始化，读写都会阻塞
+	2. channel 无生产者,读一个空的channel会阻塞
+	这里 var ch chan int 声名 channel 变量 ，不同于 ch := make(chan int)。前者 ch 值为 nil，未被初始化
 
 32. 参考答案及解析：知识点：
 	1. 结构体成员可以是个类型或类型的指针（自建类型 或 内建类型），这属于匿名成员，这种情况成员名 与 类型 同名
@@ -341,9 +377,15 @@ recover() 必须在 defer 闭包中调用才有效，所以第 9 行代码捕获
 
 简短方式声名变量，只能在函数内声名，而且声名了必须要使用
 
-37. false true false
-类型断言语法：i.(Type)，其中 i 是接口，Type 是类型或接口。编译时会自动检测 i 的动态类型与 Type 是否一致。但是，如果动态类型不存在，则断言总是失败
-
+37. false true false true
+	知识点：1. 类型断言语法：i.(Type)，其中 i 是接口，Type 是类型或接口。编译时会自动检测 i 的动态类型与 Type 是否一致。
+		  但是，如果动态类型不存在，则断言总是失败
+	       2. x，y 都为 nil ，但 x == y 却为 false？是的， 因为它们分别是不同数据类型的 nil 值 
+		
+48. 编译报错：invalid operation: fn1 != fn2 (func can only be compared to nil)
+	知识点： 函数只能与 nil 比较
+	fn1 与 fn2 分别代表两个函数的地址
+	
 38. 参考答案及解析：问题：使用 cap() 获取 map 的容量。
 	1.使用 make 创建 map 变量时可以指定第二个参数，不过会被忽略。
 	2.cap() 函数适用于数组、数组指针、slice 和 channel，不适用于 map，可以使用 len() 返回 map 的元素个数
@@ -387,10 +429,6 @@ recover() 必须在 defer 闭包中调用才有效，所以第 9 行代码捕获
 
 	    fmt.Println(data)   
 	}
-
-41. 参考答案及解析：34。与 rune 是 int32 的别名一样，byte 是 uint8 的别名，别名类型无序转换，可直接转换
-
-43. default , channel 为 nil,读写都会阻塞
 
 44. 参考答案及解析：输出 {}。知识点：结构体访问控制，因为 name 首字母是小写，导致其他包不能访问，所以输出为空结构体。修复代码：
 	 type People struct {
@@ -436,57 +474,77 @@ recover() 必须在 defer 闭包中调用才有效，所以第 9 行代码捕获
 	x | y: 11011110
 	x &^ y: 10000010
 
-46. 参考答案及解析：B。调用 foo() 函数时虽然是传值，但 foo() 函数中，字段 ls 依旧可以看成是指向底层数组的指针
-
-47. 参考答案及解析：false true。Go 语言的 switch 语句虽然没有"break"，但如果 case 完成程序会默认 break，可以在 case 语句后面加上关键字 fallthrough，这样就会接着走下一个 case 语句（不用匹配后续条件表达式）。或者，利用 case 可以匹配多个值的特性
-
- 修复代码
- func main() {
-     isMatch := func(i int) bool {
-         switch(i) {
-         case 1:
-             fallthrough
-         case 2:
-             return true
-         }
-         return false
-    }
-
-    fmt.Println(isMatch(1))     // true
-    fmt.Println(isMatch(2))     // true
-
-    match := func(i int) bool {
-        switch(i) {
-        case 1,2:
-            return true
-        }
-        return false
-    }
-
-    fmt.Println(match(1))       // true
-    fmt.Println(match(2))       // true
-}
-
-48. 函数只能与 nil 比较
+46. 参考答案及解析：100。调用 foo() 函数时虽然是传值，但 foo() 函数中，字段 ls 依旧可以看成是指向底层数组的指针
 
 49. 编译错误，map中的 T 尚未初始化，map 的value 是 struct,slice等时，一定要一层一层初始化
+注意： 如果 map 的 value 是 struct ，可以用这样的方式（m[0].n）读到结构体成员的值，但是不可以写，不能用这样的方式（m[0].n++）修改结构体成员的值
+否则会报错：cannot assign to struct field m[3].n in map
 
-50. 参考答案及解析：X{} 是不可寻址的，不能直接调用方法。知识点：在方法中，指针类型的接收者必须是合法指针（包括 nil）,或能获取实例地址
+那这种情况下想修改 map中 结构体成员的值，应该怎么办呢？
+只能用 中间变量的方式，如下
+type T struct {
+	n int
+}
+func main() {
+	m := make(map[int]T)
+	m[0] = T{3}
+	tmp := m[0]
+	tmp.n++
+	m[0] = tmp
+	fmt.Println(m[0].n)
+}
+
+注意： 如果 map 的value 是 struct 指针 或 内建数据类型（比如int；指针是不是也算内建类型？ ），则可以用类似 m[0].n++ 的方式直接进行修改
+结构体指针的方式，如下
+type T struct {
+	n int
+}
+func main() {
+	m := make(map[int]*T)
+	m[0] = &T{3}
+	//m[0].n = 1
+	//fmt.Println(m[0].n)
+	m[0].n++
+	fmt.Println(m[0].n)
+}
+
+内建类型的情况，如下
+func main() {
+	m := make(map[int]int)
+	m[0] = 3
+	//m[0].n = 1
+	//fmt.Println(m[0].n)
+	m[0]++
+	fmt.Println(m[0])
+}
+内建类型指针的情况，如下
+func main() {
+	m := make(map[int]*int)
+	a := 3
+	m[0] = &a
+	*m[0]++
+	fmt.Println(*m[0])
+}
+上面输出值都是 4
+
+50. 参考答案及解析：X{} 是不可寻址的，不能直接调用方法。
+	知识点：
+		1. 只要是合法的指针变量（指针变量的值为 nil也是可以的），就可以调用该指针对应类型的方法
+		2. 实例化的对象是不可能寻址的，只有变量才可以寻址
 修复代码：
 
 	func main() {
-
 	    var a *X
-	    a.test()    // 相当于 test(nil)
+	    a.test()    // a 的值是 nil，输出 "0x0" 
 
 	    var x = X{}
 	    x.test()
 	}
-对比：直接返回的 T{} 不可寻址
+对比：直接返回的 T{} 不可寻址(它是值，不是变量)
 	type T struct {
 	     n int
 	 }
-
+	 
 	 func (t *T) Set(n int) {
 	     t.n = n
 	 }
