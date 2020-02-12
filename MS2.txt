@@ -1,4 +1,5 @@
 51. 下面的代码输出什么？
+
 type T struct {
      n int
  }
@@ -44,7 +45,7 @@ var m = map[string]Math{
 
 func main() {
 	m["foo"].x = 4
-	Println(m["foo"].x)
+	println(m["foo"].x)
 }
 
 54. 下面的代码有几处问题？请详细说明
@@ -84,32 +85,8 @@ func main() {
 	f2 := (*N).test
 	f2(&n)
 }
-56. 下面的代码有什么问题？
 
-type N int
- func (n N) value(){
-     n++
-     fmt.Printf("v:%p,%v\n",&n,n)
- }
- 
- func (n *N) pointer(){
-     *n++
-     fmt.Printf("v:%p,%v\n",n,*n)
- }
-
-
-func main() {
-
-    var a N = 25
-
-    p := &a
-    p1 := &p
-
-    p1.value()
-    p1.pointer()
-}
-
-57. 输出什么内容
+56. 输出什么内容
 type N int
 
 func (n N) test() {
@@ -131,6 +108,27 @@ func main() {
 
 	f1()
 	f2()
+}
+
+57. 下面的代码有什么问题？
+
+type N int
+ func (n N) value(){
+     n++
+     fmt.Printf("v:%p,%v\n",&n,n)
+ }
+ 
+ func (n *N) pointer(){
+     *n++
+     fmt.Printf("v:%p,%v\n",n,*n)
+ }
+
+func main() {
+    var a N = 25
+    p := &a
+    p1 := &p
+    p1.value()
+    p1.pointer()
 }
 
 58. 下面哪一行代码会 panic，请说明原因？
@@ -161,6 +159,7 @@ var o = fmt.Print
         }
     }
 }
+
 60. 下面哪一行代码会 panic，请说明原因？
 package main
 
@@ -187,7 +186,6 @@ type data struct {
     }
 }
 
-
 func main() {
 
     var wg sync.WaitGroup
@@ -207,27 +205,40 @@ func main() {
     wg.Wait()
 }
 
-62. 下面哪一行代码会 panic，请说明原因？
-package main
+62-1. 下面哪一行代码会 panic，请说明原因？
+	package main
 
-type T struct{}
+	type T struct{}
 
-func (*T) foo() {
-}
+	func (*T) foo() {
+	}
 
-func (T) bar() {
-}
+	func (T) bar() {
+	}
 
-type S struct {
-  *T
-}
+	type S struct {
+	  *T
+	}
 
-func main() {
-  s := S{}
-  _ = s.foo
-  s.foo()
-  _ = s.bar
-}
+	func main() {
+	  s := S{}
+	  _ = s.foo
+	  s.foo()
+	  _ = s.bar
+	}
+62-2. 是否有问题？输出什么？
+	type data struct {
+		*sync.Mutex 
+		m           int
+	}
+
+	func main() {
+		aa := &data{}
+		aa.Lock()
+		aa.m = 5
+		println(aa.m)
+		aa.Unlock()
+	}	
 
 63. 下面代码输出什么？
 func main() {
