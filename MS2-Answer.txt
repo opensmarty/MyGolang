@@ -1,5 +1,32 @@
 51. 参考答案及解析：9 [{3} {9}]
-  知识点：for-range 切片。for-range 切片时使用的是切片的副本，但不会复制底层数组，换句话说，此副本切片与原数组共享底层数组
+  知识点：
+  	1. 切片底层数据结构
+  	2. for-range 原理：遍历副本，key 和 value 是复用的，可以在循环中将他们的地址打出来，可以看到，每次地址都是一样的。
+		这里遍历数组，则会复制数组底层的数据
+	3. 这里要注意 结构体数组 的这种初始化方式 ts := [2]T{}。结构体成员的值是其类型的 零值（int 为 0，指针为 nil等）
+	4. 如果 map 的value是结构体，那么不能用  ts[1].n = 9 这种方式改变 结构体成员的值，但结构体数组这样做是可以的
+这个题有点绕，先分析下原题
+type T struct {
+     n int
+ }
+ func main() {
+ /*	声明数组变量，同时初始化。
+  *	这里并未显式对数组的(结构体) 元素初始化，而是交给编译器去做。等同于 ts := [2]T{{}, {}} 或 ts := [2]T{{0}, {0}} 
+  */
+     ts := [2]T{}	
+     /* for range 遍历数组，数据全量copy。假设这个隐藏的中间变量叫 tsp。接下来直到函数结束，并未访问 tsp数组中的数据，而是对原数据的操作 */
+     for i := range ts[:] {
+     /* 如果 i 的值为 0，那么 t 是指向 ts[0] 结构体的指针 */
+         switch t := &ts[i]; i {
+         case 0:
+            t.n = 3;
+           ts[1].n = 9
+        case 1:
+            fmt.Print(t.n, " ")
+        }
+    }
+    fmt.Print(ts)
+}
   ========   对比1  ================
   type T struct {
      n int
@@ -7,9 +34,15 @@
  
  func main() {
      ts := [2]T{}
+     fmt.Printf("%p\n", &ts[0])
+      /* for range 遍历便历的是 ts 副本。假设这个隐藏的副本叫 tsp。
+       * 当 i 的值为 0 ，t 则是 tsp[0] 的副本（是结构体）。修改 t.n 的值并未影响 tsp[0].n 的值，也未影响 原始值 ts[0].n 的值 
+       * 当 i 的值为 1, t 则是 tsp[1] 的副本。tsp 的值 在 遍历前已经确定了，尽管 i 为 0时改了 ts[1].n 的值，但并不影响 tsp[1].n 的值
+       */
      for i, t := range ts {
          switch i {
          case 0:
+	    fmt.Printf("%p\n", &t)
             t.n = 3
             ts[1].n = 9
         case 1:
@@ -18,7 +51,8 @@
     }
     fmt.Print(ts)
 }
-输出 0 [{0} {9}]。知识点：for-range 循环数组。此时使用的是数组 ts 的副本，所以 t.n = 3 的赋值操作不会影响原数组
+
+输出 0 [{0} {9}]
 ============== 对比2  =================
   type T struct {
      n int
@@ -26,9 +60,15 @@
  
  func main() {
      ts := [2]T{}
+     fmt.Printf("%p\n", &ts[0])
+      /* 假设这个隐藏的副本叫 tsp, 在此它是ts的指针。
+       * 当 i 的值为 0 ，t 则是 ts[0] 的副本（是结构体）。修改 t.n 的值并未影响 ts[0].n 的值
+       * 当 i 的值为 1, t 则是 ts[1] 的副本，在 i 为 0时，将 ts[1].n的值改成了9，所以 ts的值为 [{0},{9}]
+       */
      for i, t := range &ts {
          switch i {
          case 0:
+	    fmt.Printf("%p\n", &t)
             t.n = 3
             ts[1].n = 9
         case 1:
@@ -42,8 +82,11 @@
 52. 100 110
     知识点：闭包——保存了环境；多项赋值顺序 —— 自右向左 “：=”
 
-53. 编译出错，结构体字面量字段不可寻址
-    修改
+53. 编译出错
+	知识点：当 map 的value是结构体，可以用 m["foo"].x 的方式读到结构体成员的值，但不可以用 m["foo"].x = 4 的方式修改结构体成员
+	（看来能否用这样的方式修改，跟map是没有关系的，函数返回结构体对象也是如此）
+   
+   修改：结构体指针
     type Math struct {
       x, y int
     }
@@ -56,7 +99,8 @@
       m["foo"].x = 4
       Println(m["foo"].x)
     }
-        对比 ： 编译报错 cannot assign to getT().n
+    
+   对比 ： 编译报错1 cannot assign to getT().n
     type T struct {
       n int
     }
@@ -67,8 +111,37 @@
 
     func main() {
       getT().n = 1
+     //  println(getT().n) 
     }
+    
+    编译报错2 cannot assign to getT().n
+    type T struct {
+	n int
+    }
+	func getT() T {
+	tt := T{}
+	return tt
+	}
+
+    func main() {
+	getT().n = 5
+    }
+    
+   对比：编译通过
+    type T struct {
+      n int
+    }
+
+    func getT() T {
+      return T{}
+    }
+
+    func main() {
+      println(getT().n) 
+    }
+    
     对比：编译通过
+    
     type T struct {
       n int
     }
@@ -80,6 +153,7 @@
     func main() {
       getT().n = 1
     }
+    
     或者
     type T struct {
        n int
@@ -98,8 +172,8 @@
 
 54. 参考答案及解析：有两处问题：
 
-1.直接返回的 T{} 不可寻址；
-2.不可寻址的结构体不能调用带结构体指针接收者的方法
+直接返回的 T{} ，对其元素的操作，只可读，不可写
+
 修复代码：
 type T struct {
      n int
@@ -118,10 +192,34 @@ func main() {
     t.Set(2)
     fmt.Println(t.n)
 }
+
+进阶对比：
+	type T struct {
+		n int
+	}
+
+	func (t *T) Set(n int) T {
+		t.n = n
+		return *t
+	}
+
+	func getT() *T {
+		return &T{}
+	}
+
+	func main() {
+		println(getT().Set(1).n)
+	}
+
 55. 参考答案及解析：10 11 12
     知识点：方法表达式。通过类型引用的方法表达式会被还原成普通函数样式，接收者是第一个参数，调用时显示传参。
     类型可以是 T 或 *T，只要目标方法存在于该类型的方法集中就可以
     还可以直接使用方法表达式调用：
+    
+   	type N int
+	func (n N) test() {
+		fmt.Println(n)
+	}
       func main()  {
        var n N = 10
 
@@ -133,13 +231,8 @@ func main() {
        n++
       (*N).test(&n)
     }
-
-56. 参考答案及解析：编译错误：
-  calling method value with receiver p1 (type **N) requires explicit dereference
-  calling method pointer with receiver p1 (type **N) requires explicit dereference
-  不能使用多级指针调用方法
-  
-57. 参考答案及解析：13 11 12
+    
+56. 参考答案及解析：13 11 12
   对比程序：
   type N int
 
@@ -184,8 +277,8 @@ type N int
     f2 := (*N).test
     f2(&n)
 }
-输出：0 11 12。知识点：方法表达式。通过类型引用的方法表达式会被还原成普通函数样式，接收者是第一个参数，调用时显示传参。类型可以是 T 或 *T，只要目标方法存在于该类型的方法集中就可以
-还可以直接使用方法表达式调用
+输出：0 11 12。
+直接使用方法表达式调用：
 
   func main()  {
       var n N = 10
@@ -197,14 +290,44 @@ type N int
 
        n++
       (*N).test(&n)
-  }
+  }    
+
+57. 参考答案及解析：编译错误：
+  calling method value with receiver p1 (type **N) requires explicit dereference
+  calling method pointer with receiver p1 (type **N) requires explicit dereference
+  不能使用二级或多级指针调用方法；接受者类型也不支持多级指针，只支持数据类型和数据类型的指针
+  
+  func (n **N) pointer() {
+	*n++
+	fmt.Printf("v:%p,%v\n", n, *n)
+}
+上面的定义方法编译时会报错：invalid receiver type **N (*N is not a defined type)，注意括号里的提示
+  
 
 58. 参考答案及解析：第 8 行。因为两个比较值的动态类型为同一个 不可比较类型；不可比较类型有哪些？
+
 59. 参考答案及解析：321。第一次循环，写操作已经准备好，执行 o(3)，输出 3；第二次，读操作准备好，执行 o(2)，输出 2 并将 c 赋值为 nil；第三次，由于 c 为 nil，走的是 default 分支，输出 1
 
-60. 参考答案：第 6 行，截取符号 [i:j]，如果 j 省略，默认是原切片或者数组的长度，x 的长度是 2，小于起始下标 6 ，所以 panic
+60. 参考答案：
+    	_ = x[6:10]
+    	_ = x[6:]
+    知识点：
+    	1. 只可以访问切片长度（非容量）范围内的元素，否则编译报错！
+	2. 使用切片时，长度与容量最好相等，避免使用的时候犯错
+	
+	x 的长度是 2，小于起始下标 6 ，所以 panic	
+	
+注意： 下面编译报错
+	x := make([]int, 2)
+	fmt.Printf("%d", x[2])
+	
+而 下面编译通过，输出 []
+	x := make([]int, 2)
+	fmt.Printf("%d", x[2:])
+	
 
-61. 参考答案及解析：锁失效。将 Mutex 作为匿名字段时，相关的方法必须使用指针接收者，否则会导致锁机制失效
+61. 参考答案及解析：锁失效。 
+	知识点：Mutex 是一个结构体，将 Mutex 作为匿名字段时，相关的方法必须使用指针接收者，否则会导致锁机制失效
   修复代码：
   func (d *data) test(s string)  {     // 指针接收者
     d.Lock()
@@ -250,17 +373,51 @@ func main() {
     wg.Wait()
 }
 
-62. 参考答案及解析：第 19 行，因为 s.bar 将被展开为 (*s.T).bar，而 s.T 是个空指针，解引用会 panic
+62-1. 参考答案及解析：第 19 行，因为 s.bar 将被展开为 (*s.T).bar，而 s.T 是个空指针，解引用会 panic
 可以使用下面代码输出 s：
 func main() {
     s := S{}
     fmt.Printf("%#v",s)   // 输出：main.S{T:(*main.T)(nil)}
 }
 
+62-2. 答案：编译报错：runtime error: invalid memory address or nil pointer dereference
+原因：匿名结构体指针 Mutex 的值为 nil 
+知识点：
+修改如下：
+type data struct {
+	sync.Mutex // *Mutex
+	m          int
+}
+
+func main() {
+	aa := &data{}
+	aa.Lock()
+	aa.m = 5
+	println(aa.m)
+	aa.Unlock()
+}
+或者 
+type data struct {
+	*sync.Mutex // *Mutex
+	m           int
+}
+
+func main() {
+	aa := &data{}
+	aa.Mutex = new(sync.Mutex)
+	aa.Lock()
+	aa.m = 5
+	println(aa.m)
+	aa.Unlock()
+}
+
 63. 参考答案及解析：932 
   (*[3]int)(nil)  怎么理解？
   	p := (*[3]int)(nil)
 	 fmt.Printf("%T,%d,%v\n", p, len(p), p)
+    知识点：
+    	for range 可以遍历 切片、map和 channel ,但对 切片的指针和map变量的指针和channel变量的指针都不能遍历，否则编译报错
+	for range 可以遍历 数组，以及数组的指针。不可以遍历数组的二级指针和多级指针
    
 64. 参考答案及解析：第 4 行，当前作用域中，预定义的 nil 被覆盖，此时 nil 是 int 类型值，不能赋值给 map 类型。
 65. 参考答案及解析：-128。因为溢出
