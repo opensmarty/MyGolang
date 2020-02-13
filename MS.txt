@@ -368,6 +368,19 @@ func defer_call2() {
 	fmt.Println("func defer_call2")
 }
 
+22-3. 输出什么？
+func main() {
+	defer func() {
+		fmt.Print(recover())
+	}()
+	defer func() {
+		defer fmt.Print(recover())
+		panic(1)
+	}()
+	defer recover()
+	panic(2)
+}
+
 23. 下面代码输出什么？
 func False() bool {
 	return false
@@ -579,7 +592,7 @@ func main()
     fmt.Println("hello world")
 }
 
-35. 下面代码输出什么？
+35-1. 下面代码输出什么？
 
  type ConfigOne struct {
      Daemon string
@@ -593,6 +606,32 @@ func main()
     c := &ConfigOne{}
     c.String()
 }
+
+35-2. 下面代码输出什么？
+
+ type Orange struct {
+     Quantity int
+ }
+ 
+ func (o *Orange) Increase(n int) {
+     o.Quantity += n
+ }
+ 
+ func (o *Orange) Decrease(n int) {
+    o.Quantity -= n
+}
+
+func (o *Orange) String() string {
+    return fmt.Sprintf("local:%#v", o.Quantity)
+}
+
+func main() {
+    var orange Orange
+    orange.Increase(10)
+    orange.Decrease(5)
+    fmt.Println(orange)
+}
+
 
 36. 请指出下面代码的错误？
 
