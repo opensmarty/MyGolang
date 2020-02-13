@@ -86,7 +86,7 @@ func main() {
 	f2(&n)
 }
 
-56. 输出什么内容
+56-1. 输出什么内容
 type N int
 
 func (n N) test() {
@@ -108,6 +108,25 @@ func main() {
 
 	f1()
 	f2()
+}
+
+56-2. 输出什么内容
+
+func F(n int) func() int {
+	return func() int {
+		n++
+		return n
+	}
+}
+
+func main() {
+	f := F(5)
+	defer func() {
+		fmt.Println(f())
+	}()
+	defer fmt.Println(f())
+	i := f()
+	fmt.Println(i)
 }
 
 57. 下面的代码有什么问题？
@@ -269,55 +288,6 @@ func main() {
 	var y = x / -1
 	fmt.Println(y)
 }
-66. 输出什么？
-func F(n int) func() int {
-	return func() int {
-		n++
-		return n
-	}
-}
-
-func main() {
-	f := F(5)
-	defer func() {
-		fmt.Println(f())
-	}()
-	defer fmt.Println(f())
-	i := f()
-	fmt.Println(i)
-}
-
-67. 输出什么？
-func main() {
-	defer func() {
-		fmt.Print(recover())
-	}()
-	defer func() {
-		defer fmt.Print(recover())
-		panic(1)
-	}()
-	defer recover()
-	panic(2)
-}
-
-68. 输出什么？
- type T struct {
-     n int
- }
- 
- func main() {
-     ts := [2]T{}
-     for i, t := range ts {
-         switch i {
-         case 0:
-            t.n = 3
-            ts[1].n = 9
-        case 1:
-            fmt.Print(t.n, " ")
-        }
-    }
-    fmt.Print(ts)
-}
 
 69. 下面的代码输出什么，请说明
 
@@ -336,28 +306,5 @@ func main() {
         s.Add(1).Add(2)
     }()
     s.Add(3)
-}
-70. 输出什么？
- type Orange struct {
-     Quantity int
- }
- 
- func (o *Orange) Increase(n int) {
-     o.Quantity += n
- }
- 
- func (o *Orange) Decrease(n int) {
-    o.Quantity -= n
-}
-
-func (o *Orange) String() string {
-    return fmt.Sprintf("%#v", o.Quantity)
-}
-
-func main() {
-    var orange Orange
-    orange.Increase(10)
-    orange.Decrease(5)
-    fmt.Println(orange)
 }
 
