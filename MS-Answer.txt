@@ -232,6 +232,42 @@ recover() 必须在 defer 闭包中调用才有效，所以第 9 行代码捕获
       解析：
       如果 panic 消息在该 defer 中未被捕获，那么 该defer 中的 panic(非嵌套defer) 将替代之前的panic 消息。
 
+22-3. 参考答案及解析：21
+	recover() 必须在 defer() 函数中调用才有效，所以第 9 行代码捕获是无效的。在调用 defer() 时，便会计算函数的参数并压入栈中，所以执行第 6 行代码时，此时便会捕获 panic(2)；此后的 panic(1)，会被上一层的 recover() 捕获。所以输出 21
+对比程序
+func main() {
+	defer func() {
+		fmt.Print(recover())
+	}()
+	defer func() {
+		defer func() {
+			fmt.Print(recover())
+		}()
+		panic(1)
+	}()
+	defer recover()
+	panic(2)
+}
+输出 1 2
+
+对比程序：
+func main() {
+	defer func() {
+		fmt.Print(recover())
+	}()
+	defer func() {
+		defer func() {
+			fmt.Print(recover())
+			panic(1)
+		}()
+
+	}()
+	defer recover()
+	panic(2)
+}
+
+输出 <nil>1
+
 23. 输出：
 	false
 	false
@@ -357,8 +393,101 @@ recover() 必须在 defer 闭包中调用才有效，所以第 9 行代码捕获
 34. syntax error: unexpected semicolon or newline before {
 	Go 语言中，大括号不能放在单独的一行
 
-35. 参考答案及解析：运行时错误。如果类型实现 String() 方法，当格式化输出时会自动使用 String() 方法。
-	 fmt.Sprintf将调用String(),导致无限递归，最后栈溢出，报错
+35-1. 参考答案及解析：运行时错误。
+	这里格式化输出对象指针所指向的对象。 fmt.Sprintf 将调用 String(),导致无限递归，最后栈溢出，报错
+	 
+	 对比程序：
+	 type ConfigOne struct {
+		Daemon string
+	}
+
+	func (c *ConfigOne) String() string {
+		return fmt.Sprintf("print: %v", c.Daemon)
+	}
+
+	func main() {
+		c := &ConfigOne{}
+		c.String()
+	}
+	编译通过，输出 Daemon的值(空字符串)
+35-2. 参考答案及解析：{5}。
+	这道题容易忽视的点是，String() 是指针方法，而不是值方法，所以使用 Println() 输出时不会调用到 String() 方法
+	fmt.Println() 中 提供了String 接口，所以 定义的 指针接收者的String方法，只能被指针对象调用 
+	  想要调用自定义的String方法，应该用 Orange指针：
+	  func main() {
+	   orange := &Orange{}
+	   orange.Increase(10)
+	   orange.Decrease(5)
+	    fmt.Println(orange)
+	}
+	输出：local:5
+
+	对比程序1：调用本地 String 方法，在其中格式化输出 对象，而非对象的成员
+
+	type Orange struct {
+		Quantity int
+	}
+
+	func (o *Orange) Increase(n int) {
+		o.Quantity += n
+	}
+
+	func (o *Orange) Decrease(n int) {
+		o.Quantity -= n
+	}
+
+	func (o *Orange) String() string {
+		return fmt.Sprintf("local:%v", o)
+	}
+
+	func main() {
+		orange := &Orange{}
+		orange.Increase(10)
+		orange.Decrease(5)
+		fmt.Println(orange)
+	}
+	上面代码编译报错，栈溢出，而将 %v 改为 %#v 后，输出 local:&main.Orange{Quantity:5}
+
+	对比程序2： 将本地 String 方法改为值接收者，则对象就实现了 String接口，用对象就可以调用到本地的 String方法
+	type Orange struct {
+		Quantity int
+	}
+
+	func (o *Orange) Increase(n int) {
+		o.Quantity += n
+	}
+
+	func (o *Orange) Decrease(n int) {
+		o.Quantity -= n
+	}
+
+	func (o Orange) String() string {
+		return fmt.Sprintf("local:%v", o.Quantity)
+	}
+
+	func main() {
+		var orange Orange
+		orange.Increase(10)
+		orange.Decrease(5)
+		fmt.Println(orange)
+	}
+
+	输出：local:5
+
+	对比程序3：将对多程序2中的 String 函数修改如下，就会编译报错，栈溢出
+
+	func (o Orange) String() string {
+		return fmt.Sprintf("local:%v", o)
+	}
+
+	而将 %v 改为 %#v 后，
+	输出 local:main.Orange{Quantity:5}，与上面相比，main前面少了取地址符 &
+
+	总结：
+		1. fmt包的格式化输出函数（Println,Printf等）底层定义了 String 接口，如果将要 格式化输出 的对象实现了String方法(这里是 orange)，那么在格式化输出时，会调用本地实现的String方法。
+		这里要注意 是对象实现了 String方法，还是 对象的指针实现了String方法，后者可以调前者的方法，而前者不可以调后者的方法
+		2. 如果在自定义的 String 方法中 格式化输针对象（而非对象的成员） ，会栈溢出（格式化输出指针对象的成员是可以的）
+		3. 如果将  %v  改为  %#v ，编译通过，不会有栈溢出了 , 为什么呢？
 
 36. 参考答案及解析：变量 one、two 和 three 声明未使用。
 	知识点：未使用变量。如果有未使用的变量代码将编译失败。但也有例外，函数中声明的变量必须要使用，但可以有未使用的全局变量
