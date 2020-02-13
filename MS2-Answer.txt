@@ -416,13 +416,52 @@ func main() {
   	p := (*[3]int)(nil)
 	 fmt.Printf("%T,%d,%v\n", p, len(p), p)
     知识点：
-    	for range 可以遍历 切片、map和 channel ,但对 切片的指针和map变量的指针和channel变量的指针都不能遍历，否则编译报错
+    	for range 可以遍历 切片、map和 channel ,但对 切片的指针和map的指针和channel的指针都不能遍历，否则编译报错
 	for range 可以遍历 数组，以及数组的指针。不可以遍历数组的二级指针和多级指针
+	
+例子：
+type data struct {
+	m int
+}
+
+func main() {
+
+	var aa = [2]data{}
+	p1 := &aa
+	//p2 := &p1
+	/* 编译通过*/
+	for k, v := range p1 {
+		println(v.m)
+	}
+	/* 编译报错 */
+	for k, v := range p2 {
+		println(v.m)
+	}
+	var bb = map[int]data{5: {}}
+	//p3 := &bb
+	//p4 := &p3
+	/* 编译报错 
+	for k, v := range p3 {
+		println(k)
+	}
+	*/
+	/* 编译报错 
+	for k, v := range p4 {
+		println(k)
+	}
+	*/
+	/* 编译通过*/
+	for k, v := range bb {
+		println(k)
+	}
+}
    
 64. 参考答案及解析：第 4 行，当前作用域中，预定义的 nil 被覆盖，此时 nil 是 int 类型值，不能赋值给 map 类型。
 65. 参考答案及解析：-128。因为溢出
-66. 参考答案及解析：768。知识点：匿名函数、defer()。
-  defer() 后面的函数如果带参数，会优先计算参数，并将结果存储在栈中，到真正执行 defer() 的时候取出
+66. 参考答案及解析：768。
+	知识点：
+		1. 闭包，匿名函数
+		2. defer() 后面的函数如果带参数，会优先计算参数，并将结果存储在栈中，到真正执行 defer() 的时候取出
 
 67. 参考答案及解析：21。recover() 必须在 defer() 函数中调用才有效，所以第 9 行代码捕获是无效的。在调用 defer() 时，便会计算函数的参数并压入栈中，所以执行第 6 行代码时，此时便会捕获 panic(2)；此后的 panic(1)，会被上一层的 recover() 捕获。所以输出 21
 对比程序
@@ -433,7 +472,6 @@ func main() {
 	defer func() {
 		defer func() {
 			fmt.Print(recover())
-
 		}()
 		panic(1)
 	}()
@@ -441,6 +479,7 @@ func main() {
 	panic(2)
 }
 输出 1 2
+
 对比程序：
 func main() {
 	defer func() {
@@ -552,3 +591,55 @@ func main() {
    orange.Decrease(5)
     fmt.Println(orange)
 }
+
+对比程序1：
+type Orange struct {
+	Quantity int
+}
+
+func (o *Orange) Increase(n int) {
+	o.Quantity += n
+}
+
+func (o *Orange) Decrease(n int) {
+	o.Quantity -= n
+}
+
+func (o *Orange) String() string {
+	return fmt.Sprintf("%#v", o.Quantity)
+}
+
+func main() {
+	//var orange *Orange
+	var orange = &Orange{}
+	orange.Increase(10)
+	orange.Decrease(5)
+	fmt.Println(orange)
+}
+输出 5
+
+对比程序2：
+type Orange struct {
+	Quantity int
+}
+
+func (o *Orange) Increase(n int) {
+	o.Quantity += n
+}
+
+func (o *Orange) Decrease(n int) {
+	o.Quantity -= n
+}
+
+func (o Orange) String() string {
+	return fmt.Sprintf("%#v", o.Quantity)
+}
+
+func main() {
+	var orange Orange
+	orange.Increase(10)
+	orange.Decrease(5)
+	fmt.Println(orange)
+}
+
+输出：5
