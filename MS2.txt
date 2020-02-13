@@ -320,8 +320,8 @@ func main() {
 }
 
 69. 下面的代码输出什么，请说明
+
  type Slice []int
- 
  func NewSlice() Slice {
      return make(Slice, 0)
  }
