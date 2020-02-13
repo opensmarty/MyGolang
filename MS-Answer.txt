@@ -68,7 +68,7 @@ iota 在 const 关键字出现时将被重置为0，const中每新增一行常�
 7. 参考答案及解析：A 声明的是 nil 切片；B 声明的是长度和容量都为 0 的空切片。第一种切片声明不会分配内存，优先选择
 8. 参考答案及解析：BD
 	函数参数为 interface{} 时可以接收任何类型的参数，包括用户自定义类型等，即使是接收指针类型也用 interface{}，而不是使用 *interface{}。
-	注意： *interface{} 是接口指针，它接收的参数必须是接口变量的地址
+	注意： *interface{} 并不能接收任何类型的参数，*interface{} 是接口指针，它接收的参数必须是接口变量的地址
 	func main() {
 		var myinterface interface{}
 		s := S{}
