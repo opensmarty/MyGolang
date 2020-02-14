@@ -13,7 +13,6 @@ type Direction struct {
 	age  int
 	name string
 }
-
 const (
 	North Direction = {iota, "yang"}
 	East
@@ -21,6 +20,83 @@ const (
 	West
 )
 ......
+
+这里注意 “var api interface{}” 的用法，interface{}是空接口类型，没有接口名，也没有设置接口方法。类似于 空结构体 struct{} 的用法
+
+对比程序1：下面的程序输出什么？
+package main
+import "fmt"
+func main() {
+	var myt struct {
+		a int
+		b string
+	}
+	myt={10,"yang"}
+	fmt.Println(myt)
+}
+编译报错：“myt={10,"yang"}” 赋值没有加类型
+改正：
+package main
+import "fmt"
+func main() {
+	var myt struct {
+		a int
+		b string
+	}
+	myt = struct {
+		a int
+		b string
+	}{10, "yang"}
+	fmt.Println(myt)
+}
+对比程序2：下面程序输出什么？
+func main() {
+	var myt struct {
+		a int
+		b string
+	}{10,"yang"}
+	fmt.Println(myt)
+}
+编译报错：报语法错误，myt初始化化有错误
+改正： 要按照格式来 
+func main() {
+	var myt struct {
+		a int
+		b string
+	} = struct {
+		a int
+		b string
+	}{10, "yang"}
+	fmt.Println(myt)
+}
+或者
+func main() {
+	myt := struct {
+		a int
+		b string
+	}{10, "yang"}
+
+	fmt.Println(myt)
+}
+或者
+type tt struct {
+	a int
+	b string
+}
+func main() {
+	var myt tt = tt{10, "yang"}
+	fmt.Println(myt)
+}
+或者
+func main() {
+	var myt struct {
+		a int
+		b string
+	}
+	myt.a = 10
+	myt.b = "yang"
+	fmt.Println(myt)
+}
 
 1-3. 编译报错：duplicate case int in type switch
 改正：将 "type Direction = int" 改为 “type Direction  int”
