@@ -281,7 +281,43 @@ func main() {
 	第二个 False() 的返回值作为 switch 的条件变量， 本质与第一个相同
 	第三个 switch 后面的 False()后面加了个分号，False() 是单纯的函数调用，即非条件变量，也非条件表达式， 跟 switch 没啥关系，相当于 switch 没有了条件，所以 输出 true
 	第四个switch 是第三个的本质
-第五个switch ，使用了 条件表达式，m 的作用域就是该 switch 语句
+第五个switch ，使用了 条件表达式，m 的作用域就是该 switch 语句.
+还要注意 switch 的对象与 case的对象，两者数据类型必须相同(做比较)
+
+对比程序：
+package main
+
+import "fmt"
+
+func False() bool {
+	return false
+}
+
+func main() {
+
+	switch m := False(); {
+	case m == false:
+		fmt.Println("false")
+	case m == true:
+		fmt.Println("true")
+	}
+
+	switch False(); {
+	case false:
+		fmt.Println("false")
+	case true:
+		fmt.Println("true")
+	}
+
+	switch false {
+	case False():
+		fmt.Println("false")
+	case true:
+		fmt.Println("true")
+	}
+}
+
+输出：false true false
 
 47. 参考答案及解析：false true。Go 语言的 switch 语句虽然没有"break"，但如果 case 完成程序会默认 break，可以在 case 语句后面加上关键字 fallthrough，这样就会接着走下一个 case 语句（不用匹配后续条件表达式）。或者，利用 case 可以匹配多个值的特性
 
