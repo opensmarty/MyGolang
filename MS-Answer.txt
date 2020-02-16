@@ -1,6 +1,6 @@
 1-1. 参考答案及解析：South。
 知识点：iota 的用法、类型的 String() 方法。
-根据 iota 的用法推断出 South 的值是 3；另外，如果类型定义了 String() 方法，当使用 fmt.Printf()、fmt.Print() 和 fmt.Println() 会自动使用 String() 方法，实现字符串的打印
+根据 iota 的用法推断出 South 的值是 2；另外，如果类型定义了 String() 方法，当使用 fmt.Printf()、fmt.Print() 和 fmt.Println() 输出类型对象时，会自动使用 String() 方法（如果对象是结构体，输出其成员变量并不会调用），实现字符串的打印
 
 1-2. 输出：2
 知识点：
