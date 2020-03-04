@@ -1,6 +1,6 @@
 1-1. 参考答案及解析：South。
-知识点：iota 的用法、类型的 String() 方法。
-根据 iota 的用法推断出 South 的值是 2；另外，如果类型定义了 String() 方法，当使用 fmt.Printf()、fmt.Print() 和 fmt.Println() 输出类型对象时，会自动使用 String() 方法（如果对象是结构体，输出其成员变量并不会调用），实现字符串的打印
+知识点：iota 的用法、类型的 String() 方法
+根据 iota 的用法推断出 South 的值是 2；另外，如果类型定义了 String() 方法，当使用 fmt.Printf()、fmt.Print() 和 fmt.Println() 输出类型对象时，会自动使用该 String() 方法（如果对象是结构体，输出其成员变量并不会调用），实现字符串的打印
 
 1-2. 输出：2
 知识点：
@@ -138,7 +138,7 @@ func main() {
       fmt.Printf("%#v", m["foo"])   // %#v 格式化输出详细信息
   }
   
-3. 参考答案及解析：0 1 1 2。知识点：iota 的用法。
+3. 参考答案及解析：a a s f。知识点：iota 的用法。
 iota 是 golang 语言的常量计数器，只能在常量的表达式中使用。
 iota 在 const 关键字出现时将被重置为0，const中每新增一行常量声明将使 iota 计数一次
 
@@ -150,7 +150,7 @@ iota 在 const 关键字出现时将被重置为0，const中每新增一行常�
 5. 参考答案及解析：B
   基于类型创建的方法必须定义在同一个包内，上面的代码基于 int 类型创建了 PrintInt() 方法，由于 int 类型和方法 PrintInt() 定义在不同的包内，所以编译出错。
 
-  解决的办法可以定义一种新的类型：
+  解决的办法：基于 int 自定义一种类型
   
   type Myint int
   func (i Myint) PrintInt ()  {
@@ -329,10 +329,11 @@ recover() 必须在 defer 闭包中调用才有效，所以第 9 行代码捕获
 	打印前
 	func defer_call2
       解析：
-      如果 panic 消息在该 defer 中未被捕获，那么 该defer 中的 panic(非嵌套defer) 将替代之前的panic 消息。
+      如果 panic 消息在该 defer 中未被捕获，那么 该defer 中的 panic(嵌套/非嵌套defer) 将替代之前的panic 消息。
+      特殊情况：嵌套defer：22-1
 
 22-3. 参考答案及解析：21
-	recover() 必须在 defer() 函数中调用才有效，所以第 9 行代码捕获是无效的。在调用 defer() 时，便会计算函数的参数并压入栈中，所以执行第 6 行代码时，此时便会捕获 panic(2)；此后的 panic(1)，会被上一层的 recover() 捕获。所以输出 21
+	recover() 必须在 defer() 函数中调用才有效，所以第 9 行代码捕获是无效的。在调用 defer() 时，便会计算函数的参数并压入栈中，所以执行第 6 行代码时，此时便会捕获 panic(2)；此后的 panic(1)，会被上一层的 recover() 捕获。所以输出 21 （闭包函数环境变量）
 对比程序
 func main() {
 	defer func() {
@@ -479,7 +480,7 @@ func main() {
 	注意使用 = 定义类型别名。因为 User2 是别名，完全等价于 User，所以 User2 具有 User 所有的方法。但是 i1.m2() 是不能执行的，
 	因为 User1 没有定义该方法
 	
-41. 参考答案及解析：34。与 rune 是 int32 的别名一样，byte 是 uint8 的别名，别名类型无序转换，可直接转换	
+41. 参考答案及解析：34。与 rune 是 int32 的别名一样，byte 是 uint8 的别名，别名类型无需转换，可直接赋值	
 
 27.参考答案及解析：012。注意区别下面代码段：
 
@@ -526,7 +527,7 @@ func main() {
 33. 参考答案及解析：输出[1 0 2 3]，
 	字面量初始化切片时候，可以指定索引，没有指定索引的元素会在前一个索引基础之上加一，所以输出[1 0 2 3]，而不是[1 3 2]
 34. syntax error: unexpected semicolon or newline before {
-	Go 语言中，大括号不能放在单独的一行
+	Go 语言中，行首不能以大括号 { 开头，否则编译报语法错误
 
 35-1. 参考答案及解析：运行时错误。
 	这里格式化输出对象指针所指向的对象。 fmt.Sprintf 将调用 String(),导致无限递归，最后栈溢出，报错
@@ -546,9 +547,8 @@ func main() {
 	}
 	编译通过，输出 Daemon的值(空字符串)
 35-2. 参考答案及解析：{5}。
-	这道题容易忽视的点是，String() 是指针方法，而不是值方法，所以使用 Println() 输出时不会调用到 String() 方法
-	fmt.Println() 中 提供了String 接口，所以 定义的 指针接收者的String方法，只能被指针对象调用 
-	  想要调用自定义的String方法，应该用 Orange指针：
+	这道题容易忽视的点是，自定义的 String() 是指针方法，而不是值方法，所以使用 Println() 输出时不会调用到 自定义的String() 方法
+	fmt.Println() 中 提供了String 接口，类型 ConfigOne 未实现该接口，而 *ConfigOne 实现了该接口，因此想要调用自定义的String方法，应该用 Orange指针：
 	  func main() {
 	   orange := &Orange{}
 	   orange.Increase(10)
@@ -621,7 +621,7 @@ func main() {
 	总结：
 		1. fmt包的格式化输出函数（Println,Printf等）底层定义了 String 接口，如果将要 格式化输出 的对象实现了String方法(这里是 orange)，那么在格式化输出时，会调用本地实现的String方法。
 		这里要注意 是对象实现了 String方法，还是 对象的指针实现了String方法，后者可以调前者的方法，而前者不可以调后者的方法
-		2. 如果在自定义的 String 方法中 格式化输针对象（而非对象的成员） ，会栈溢出（格式化输出指针对象的成员是可以的）
+		2. 如果在自定义的string 方法中(指针接口者)格式化输出指针对象，如果在自定义的 String 方法中 （值接口者）格式化输出对象 或 对象指针，会栈溢出（格式化输出指针对象的成员是可以的）
 		3. 如果将  %v  改为  %#v ，编译通过，不会有栈溢出了 , 为什么呢？
 
 36. 参考答案及解析：变量 one、two 和 three 声明未使用。
@@ -666,7 +666,7 @@ func main() {
 		}
 	}
 	
-39. 参考答案及解析：nil 用于表示 interface、函数、指针、maps、slices 和 channels 的“零值”。
+39. 参考答案及解析：nil 用于表示 interface、函数、指针、maps、slices、数组 和 channels 的“零值”
 	如果不指定变量的类型，编译器猜不出变量的具体类型，导致编译错误
   对比：
   buildin 类型是可以推到出来的
@@ -740,7 +740,7 @@ func main() {
 
 46. 参考答案及解析：100。调用 foo() 函数时虽然是传值，但 foo() 函数中，字段 ls 依旧可以看成是指向底层数组的指针
 
-49. 编译错误，map中的 T 尚未初始化，map 的value 是 struct,slice等时，一定要一层一层初始化
+49. 编译错误，最好对其一层一层初始化
 注意： 如果 map 的 value 是 struct ，可以用这样的方式（m[0].n）读到结构体成员的值，但是不可以写，不能用这样的方式（m[0].n++）修改结构体成员的值
 否则会报错：cannot assign to struct field m[3].n in map
 
