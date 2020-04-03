@@ -1,6 +1,105 @@
-1. 参考答案及解析：South。
-知识点：iota 的用法、类型的 String() 方法。
-根据 iota 的用法推断出 South 的值是 3；另外，如果类型定义了 String() 方法，当使用 fmt.Printf()、fmt.Print() 和 fmt.Println() 会自动使用 String() 方法，实现字符串的打印
+1-1. 参考答案及解析：South。
+知识点：iota 的用法、类型的 String() 方法
+根据 iota 的用法推断出 South 的值是 2；另外，如果类型定义了 String() 方法，当使用 fmt.Printf()、fmt.Print() 和 fmt.Println() 输出类型对象时，会自动使用该 String() 方法（如果对象是结构体，输出其成员变量并不会调用），实现字符串的打印
+
+1-2. 输出：2
+知识点：
+	1. const 常量是有类型的，可以手动给 const 常量设置类型。如果没设置，编译器会自动推导
+	2. 可以将 const 常量赋值给接口变量，通过接口变量，const 常量的类型和值，可以用 type-switch 或 reflect 映射出来！
+	3. 由于 const 常量 取值的限制(只能取数值或字符串，编译器会将其自动推导为 int 或 string类型)，并不是什么数据类型都可以设置，只能设置 int 和 string 类型，以及这两种类型的衍生类型：基于这两种类型的自定义类型，或这两种类型的别名（注意case不能重复）
+	
+下面的代码编译出错：对应上面第 3 点
+type Direction struct {
+	age  int
+	name string
+}
+const (
+	North Direction = {iota, "yang"}
+	East
+	South
+	West
+)
+......
+
+这里注意 “var api interface{}” 的用法，interface{}是空接口类型，没有接口名，也没有设置接口方法。类似于 空结构体 struct{} 的用法
+
+对比程序1：下面的程序输出什么？
+package main
+import "fmt"
+func main() {
+	var myt struct {
+		a int
+		b string
+	}
+	myt={10,"yang"}
+	fmt.Println(myt)
+}
+编译报错：“myt={10,"yang"}” 赋值没有加类型
+改正：
+package main
+import "fmt"
+func main() {
+	var myt struct {
+		a int
+		b string
+	}
+	myt = struct {
+		a int
+		b string
+	}{10, "yang"}
+	fmt.Println(myt)
+}
+对比程序2：下面程序输出什么？
+func main() {
+	var myt struct {
+		a int
+		b string
+	}{10,"yang"}
+	fmt.Println(myt)
+}
+编译报错：报语法错误，myt初始化化有错误
+改正： 要按照格式来 
+func main() {
+	var myt struct {
+		a int
+		b string
+	} = struct {
+		a int
+		b string
+	}{10, "yang"}
+	fmt.Println(myt)
+}
+或者
+func main() {
+	myt := struct {
+		a int
+		b string
+	}{10, "yang"}
+
+	fmt.Println(myt)
+}
+或者
+type tt struct {
+	a int
+	b string
+}
+func main() {
+	var myt tt = tt{10, "yang"}
+	fmt.Println(myt)
+}
+或者
+func main() {
+	var myt struct {
+		a int
+		b string
+	}
+	myt.a = 10
+	myt.b = "yang"
+	fmt.Println(myt)
+}
+
+1-3. 编译报错：duplicate case int in type switch
+改正：将 "type Direction = int" 改为 “type Direction  int”
 
 2.参考答案及解析：B，编译报错 cannot assign to struct field m["foo"].x in map。
   错误原因：对于类似 X = Y的赋值操作，必须知道 X 的地址，才能够将 Y 的值赋给 X，但 go 中的 map 的 value 本身是不可寻址的。
@@ -39,7 +138,7 @@
       fmt.Printf("%#v", m["foo"])   // %#v 格式化输出详细信息
   }
   
-3. 参考答案及解析：0 1 1 2。知识点：iota 的用法。
+3. 参考答案及解析：a a s f。知识点：iota 的用法。
 iota 是 golang 语言的常量计数器，只能在常量的表达式中使用。
 iota 在 const 关键字出现时将被重置为0，const中每新增一行常量声明将使 iota 计数一次
 
@@ -51,33 +150,68 @@ iota 在 const 关键字出现时将被重置为0，const中每新增一行常�
 5. 参考答案及解析：B
   基于类型创建的方法必须定义在同一个包内，上面的代码基于 int 类型创建了 PrintInt() 方法，由于 int 类型和方法 PrintInt() 定义在不同的包内，所以编译出错。
 
-  解决的办法可以定义一种新的类型：
-
+  解决的办法：基于 int 自定义一种类型
+  
   type Myint int
-
   func (i Myint) PrintInt ()  {
       fmt.Println(i)
   }
-
   func main() {
       var i Myint = 1
       i.PrintInt()
   } 
   
-6. 参考答案及解析：B
-编译错误 Student does not implement People (Speak method has pointer receiver)，值类型 Student 没有实现接口的 Speak() 方法，而是指针类型 *Student 实现该方法
+6.  参考答案及解析：B。编译错误 Student does not implement People (Speak method has pointer receiver)，
+    值类型 Student 没有实现接口的 Speak() 方法，而是指针类型 *Student 实现该方法
 
 7. 参考答案及解析：A 声明的是 nil 切片；B 声明的是长度和容量都为 0 的空切片。第一种切片声明不会分配内存，优先选择
-8. 参考答案及解析：BD。函数参数为 interface{} 时可以接收任何类型的参数，包括用户自定义类型等，即使是接收指针类型也用 interface{}，而不是使用 *interface{}。
+8. 参考答案及解析：BD
+	函数参数为 interface{} 时可以接收任何类型的参数，包括用户自定义类型等，即使是接收指针类型也用 interface{}，而不是使用 *interface{}。
+	注意： *interface{} 并不能接收任何类型的参数，*interface{} 是接口指针，它接收的参数必须是接口变量的地址
+	func main() {
+		var myinterface interface{}
+		s := S{}
+		p := &s
+		myinterface = p
+		f(s) //A
+		f(p) //C
+		g(&myinterface) //D
+	}
+	下面这样虽然可编译，但不建议用：永远不要使用一个指针指向一个接口类型，因为它已经是一个指针
+	type i interface{
+	}
+	type S struct {
+	}
 
-  永远不要使用一个指针指向一个接口类型，因为它已经是一个指针
+	func f(x interface{}) {
+	}
+
+	func g(x *i) {
+	}
+
+	func main() {
+		var myinterface i
+		s := S{}
+		p := &s
+		myinterface = p
+		f(s) //A
+		// g(s) //B
+		f(p) //C
+		g(&myinterface) //D
+	}
+  
 9. A. &S{"foo"} 
   B. *f() 或者 f()
   f() 函数返回参数是指针类型，所以可以用 & 取结构体的指针；B 处，如果填 *f()，则 p 是 S 类型；如果填 f()，则 p 是 *S 类型，不过都可以使用 p.m 取得结构体的成员
 10. 参考答案及解析：两个地方有语法问题。golang 的字符串类型是不能赋值 nil 的，也不能跟 nil 比较
 
-11. 参考答案及解析：2 1。defer 关键字后面的函数或者方法想要执行必须先注册，return 之后的 defer 是不能注册的， 也就不能执行后面的函数或方法
-12. 参考答案及解析：A。知识点：代码块和变量作用域
+11. 参考答案及解析：2 1。defer关键字后面的函数或者方法想要执行必须先注册，return 之后的 defer 是不能注册的， 也就不能执行后面的函数或方法
+12. 参考答案及解析：A。知识点：代码块和变量作用域。这里 a 和 b 作用域只适用于该 if...else if ... else 语句。 
+	特殊之处：
+	if a:=f(); true{
+	} else if b:=f2(); false{
+	} else {	// 变量声名只能在 if 关键字之后，只后一个 else 不能声名变量
+	}
 13. map 的输出是无序的
 14. 参考答案及解析：
         10 1 2 3
@@ -89,18 +223,7 @@ iota 在 const 关键字出现时将被重置为0，const中每新增一行常�
     因为defer 定义的函数是延迟函数，故 calc("1",1,3) 会被延迟执行；
     程序执行到第五行的时候，同样先执行 calc("20",a,b) 输出：20 0 2 2 得到值 2，同样将 calc("2",0,2) 延迟执行；
     程序执行到末尾的时候，按照栈先进后出的方式依次执行：calc("2",0,2)，calc("1",1,3)，则就依次输出：2 0 2 2，1 1 3 4
-15. 参考答案及解析：B。基于类型创建的方法必须定义在同一个包内
-    上面的代码基于 int 类型创建了 PrintInt() 方法，由于 int 类型和方法 PrintInt() 定义在不同的包内，所以编译出错
 
-    解决的办法可以定义一种新的类型：
-    type Myint int
-    func (i Myint) PrintInt ()  {
-        fmt.Println(i)
-    }
-    func main() {
-        var i Myint = 1
-        i.PrintInt()
-    }
 16. 参考答案及解析：B。编译错误 Student does not implement People (Speak method has pointer receiver)，
     值类型 Student 没有实现接口的 Speak() 方法，而是指针类型 *Student 实现该方法
 
@@ -163,7 +286,11 @@ a =  [1 12 13 4 5]
 这的 a 是一个切片，那切片是怎么实现的呢？切片在 go 的内部结构有一个指向底层数组的指针，
 当 range 表达式发生复制时，副本的指针依旧指向原底层数组，所以对切片的修改都会反应到底层数组上，所以通过 v 可以获得修改后的数组元素。
 
-18. 参考答案及解析：
+18. 参考答案及解析：C。
+	1. map底层是一个数据结构，数据结构中有存放指向数据的指针。for ... range ..中，复制的是map结构体，但是结构体内指向数据的指针并未发生变化，所以在 for range 中修改map 元素的值，会影响到所有该map变量。还要注意 map 不是线程安全的，操作时一定要加锁
+	2. for range map 是无序的，如果第一次循环到 A，则输出 3；否则输出 2
+
+19. 参考答案及解析：
 
 [1 2 0 0 0]
 [1 2 3 0 0]
@@ -174,17 +301,153 @@ a =  [1 12 13 4 5]
 
 注意： 切片作为参数向 可变长参数函数传递 如果 ...
 
-19. 参考答案及解析：C
-recover() 必须在 defer() 函数中直接调用才有效。
-面其他几种情况调用都是无效的：直接调用 recover()、在 defer() 中直接调用 recover() 和 defer() 调用时多层嵌套
-
-20. 参考答案及解析：21
-recover() 必须在 defer() 函数中调用才有效，所以第 9 行代码捕获是无效的。在调用 defer() 时，便会计算函数的参数并压入栈中，所以执行第 6 行代码时，此时便会捕获 panic(2)；此后的 panic(1)，会被上一层的 recover() 捕获。所以输出 21。
+20. 参考答案及解析：C
+recover() 必须在 defer 闭包 函数中 直接 调用才有效。
+	下面两种调用都是 无效 的：
+	1. 非闭包调用  defer recover() 或  defer fmt.Println(recover()) 
+	2. defer嵌套调用 
+		defer func(){
+			defer func(){
+				fmt.Println(recover())	// 捕获不到panic(1) 可以捕获到 panic(2)，defer 特性,后注册的先执行
+			}()
+			panic(2)
+		}()
+		panic(1)
+recover() 功能：捕获并反回 panic信息；当前函数返回后，继续执行下面的函数，程序不会中断		
+注意：recover()只是无效，但可编译执行，只是 为nil值，捕获不到panic信息
+21. 参考答案及解析：21
+recover() 必须在 defer 闭包中调用才有效，所以第 9 行代码捕获是无效的。
 引自《Go语言101》
 
-21. 参考 19题和20题
-22. 参考答案及解析：C。for range map 是无序的，如果第一次循环到 A，则输出 3；否则输出 2
-23. 输出：1 5 1
+22-1. 12
+22-2. 答案：
+	打印后
+	触发异常11
+	打印中
+	触发异常22
+	<nil>
+	打印前
+	func defer_call2
+      解析：
+      如果 panic 消息在该 defer 中未被捕获，那么 该defer 中的 panic(嵌套/非嵌套defer) 将替代之前的panic 消息。
+      特殊情况：嵌套defer：22-1
+
+22-3. 参考答案及解析：21
+	recover() 必须在 defer() 函数中调用才有效，所以第 9 行代码捕获是无效的。在调用 defer() 时，便会计算函数的参数并压入栈中，所以执行第 6 行代码时，此时便会捕获 panic(2)；此后的 panic(1)，会被上一层的 recover() 捕获。所以输出 21 （闭包函数环境变量）
+对比程序
+func main() {
+	defer func() {
+		fmt.Print(recover())
+	}()
+	defer func() {
+		defer func() {
+			fmt.Print(recover())
+		}()
+		panic(1)
+	}()
+	defer recover()
+	panic(2)
+}
+输出 1 2
+
+对比程序：
+func main() {
+	defer func() {
+		fmt.Print(recover())
+	}()
+	defer func() {
+		defer func() {
+			fmt.Print(recover())
+			panic(1)
+		}()
+
+	}()
+	defer recover()
+	panic(2)
+}
+
+输出 <nil>1
+
+23. 输出：
+	false
+	false
+	true
+	true
+	false
+    解析：
+    	1. 如果 switch语句 没有了条件变量，那么 case 会跟 true 做比较，也就是说，如果 switch 没有条件，那么 条件就是 true
+	2. switch语句 后面要跟 条件变量，或 条件表达式
+	第一个 switch 很普通，不用多说
+	第二个 False() 的返回值作为 switch 的条件变量， 本质与第一个相同
+	第三个 switch 后面的 False()后面加了个分号，False() 是单纯的函数调用，即非条件变量，也非条件表达式， 跟 switch 没啥关系，相当于 switch 没有了条件，所以 输出 true
+	第四个switch 是第三个的本质
+第五个switch ，使用了 条件表达式，m 的作用域就是该 switch 语句.
+还要注意 switch 的对象与 case的对象，两者数据类型必须相同(做比较)
+
+对比程序：
+package main
+
+import "fmt"
+
+func False() bool {
+	return false
+}
+
+func main() {
+
+	switch m := False(); {
+	case m == false:
+		fmt.Println("false")
+	case m == true:
+		fmt.Println("true")
+	}
+
+	switch False(); {
+	case false:
+		fmt.Println("false")
+	case true:
+		fmt.Println("true")
+	}
+
+	switch false {
+	case False():
+		fmt.Println("false")
+	case true:
+		fmt.Println("true")
+	}
+}
+
+输出：false true false
+
+47. 参考答案及解析：false true。Go 语言的 switch 语句虽然没有"break"，但如果 case 完成程序会默认 break，可以在 case 语句后面加上关键字 fallthrough，这样就会接着走下一个 case 语句（不用匹配后续条件表达式）。或者，利用 case 可以匹配多个值的特性
+
+ 修复代码
+ func main() {
+     isMatch := func(i int) bool {
+         switch(i) {
+         case 1:
+             fallthrough
+         case 2:
+             return true
+         }
+         return false
+    }
+
+    fmt.Println(isMatch(1))     // true
+    fmt.Println(isMatch(2))     // true
+
+    match := func(i int) bool {
+        switch(i) {
+        case 1,2:
+            return true
+        }
+        return false
+    }
+
+    fmt.Println(match(1))       // true
+    fmt.Println(match(2))       // true
+}
+
 24. 参考答案及解析：A。知识点：多重赋值
 	多重赋值分为两个步骤，有先后顺序：从左至右，先计算等号左边的索引表达式和取址表达式，后计算等号右边的表达式；
 	赋值顺序：从左至右挨个为变量赋值
@@ -200,7 +463,8 @@ recover() 必须在 defer() 函数中调用才有效，所以第 9 行代码捕�
      输出：1 [A 2 C]
 25. 参考答案及解析：AD
 	知识点：自增自减操作。
-	i++ 和 i-- 在 Go 语言中是语句，不是表达式，因此不能赋值给另外的变量。此外没有 ++i 和 --i
+	1. i++ 和 i-- 在 Go 语言中是语句，不是表达式，因此不能赋值给另外的变量。必须在单独一行使用
+	2. Go 中没有 ++i 和 --i 操作
 	
 	下面代码编译会报错，为什么？
 	 func main() {
@@ -211,9 +475,13 @@ recover() 必须在 defer() 函数中调用才有效，所以第 9 行代码捕�
 	}
 	切片下标中的变量，不能进行自增，自减运算，也是因为 自增、自减是语句，只能独立使用
 	
-26. 参考答案及解析：能，输出m1 m2，第 2 行代码基于类型 User 创建了新类型 User1，第 3 行代码是创建了 User 的类型别名 User2，
+26. 参考答案及解析：能，输出m1 m2
+	第 2 行代码基于类型 User 创建了新类型 User1，第 3 行代码是创建了 User 的类型别名 User2，
 	注意使用 = 定义类型别名。因为 User2 是别名，完全等价于 User，所以 User2 具有 User 所有的方法。但是 i1.m2() 是不能执行的，
 	因为 User1 没有定义该方法
+	
+41. 参考答案及解析：34。与 rune 是 int32 的别名一样，byte 是 uint8 的别名，别名类型无需转换，可直接赋值	
+
 27.参考答案及解析：012。注意区别下面代码段：
 
 	func main() {
@@ -222,14 +490,25 @@ recover() 必须在 defer() 函数中调用才有效，所以第 9 行代码捕�
 		fmt.Print(v)     //输出 abc
 	    }
 	}
-29. 参考答案及解析：编译报错cannot take the address of i。
-	知识点：常量。常量不同于变量的在运行期分配内存，常量通常会被编译器在预处理阶段直接展开，作为指令数据使用，所以常量无法寻址	
-
+ 只有一个变量时，接收的是 切片的 下标，而非值。 难道是从左往右按顺序接收？
+ 
+28. 答案：non-empty interface
+    考点：interface 底层数据结构
+ 
 30. 参考答案及解析：程序抛异常。先定义下，第一个协程为 A 协程，第二个协程为 B 协程；当 A 协程还没起时，主协程已经将 channel 关闭了，当 A 协程往关闭的 channel 发送数据时会 panic，panic: send on closed channel
 
 31. 有方向的channle不可能被关闭
 
-32. 参考答案及解析：存在两个问题：1.map 需要初始化才能使用；2.指针不支持索引。
+43. default 
+	1. ch 值为 nil，未被初始化，读写都会阻塞
+	2. channel 无生产者,读一个空的channel会阻塞
+	这里 var ch chan int 声名 channel 变量 ，不同于 ch := make(chan int)。前者 ch 值为 nil，未被初始化
+
+32. 参考答案及解析：知识点：
+	1. 结构体成员可以是个类型或类型的指针（自建类型 或 内建类型），这属于匿名成员，这种情况成员名 与 类型 同名
+	2. map 需要初始化才能使用；
+	2. map指针不支持索引，不能用 map 指针访问 map 里的元素，否则编译报错 “ type *Param does not support indexing ”
+	
 	修复代码如下：
 
 	func main() {
@@ -240,24 +519,137 @@ recover() 必须在 defer() 函数中调用才有效，所以第 9 行代码捕�
 	    s.Param = &p
 	    tmp := *s.Param
 	    fmt.Println(tmp["day"])
+	    // 错误用法，编译报错
+	    tmp2 := s.Param
+	    fmt.Println(*tmp2["day"])	    
 	}
 
 33. 参考答案及解析：输出[1 0 2 3]，
 	字面量初始化切片时候，可以指定索引，没有指定索引的元素会在前一个索引基础之上加一，所以输出[1 0 2 3]，而不是[1 3 2]
 34. syntax error: unexpected semicolon or newline before {
-	Go 语言中，大括号不能放在单独的一行
+	Go 语言中，行首不能以大括号 { 开头，否则编译报语法错误
 
-35. 参考答案及解析：运行时错误。如果类型实现 String() 方法，当格式化输出时会自动使用 String() 方法。
-	 fmt.Sprintf将调用String(),导致无限递归，最后栈溢出，报错
+35-1. 参考答案及解析：运行时错误。
+	这里格式化输出对象指针所指向的对象。 fmt.Sprintf 将调用 String(),导致无限递归，最后栈溢出，报错
+	 
+	 对比程序：
+	 type ConfigOne struct {
+		Daemon string
+	}
 
-36. 参考答案及解析：变量 one、two 和 three 声明未使用。知识点：未使用变量。如果有未使用的变量代码将编译失败。但也有例外，函数中声明的变量必须要使用，但可以有未使用的全局变量。函数的参数未使用也是可以的。
+	func (c *ConfigOne) String() string {
+		return fmt.Sprintf("print: %v", c.Daemon)
+	}
 
+	func main() {
+		c := &ConfigOne{}
+		c.String()
+	}
+	编译通过，输出 Daemon的值(空字符串)
+35-2. 参考答案及解析：{5}。
+	这道题容易忽视的点是，自定义的 String() 是指针方法，而不是值方法，所以使用 Println() 输出时不会调用到 自定义的String() 方法
+	fmt.Println() 中 提供了String 接口，类型 ConfigOne 未实现该接口，而 *ConfigOne 实现了该接口，因此想要调用自定义的String方法，应该用 Orange指针：
+	  func main() {
+	   orange := &Orange{}
+	   orange.Increase(10)
+	   orange.Decrease(5)
+	    fmt.Println(orange)
+	}
+	输出：local:5
+
+	对比程序1：调用本地 String 方法，在其中格式化输出 对象，而非对象的成员
+
+	type Orange struct {
+		Quantity int
+	}
+
+	func (o *Orange) Increase(n int) {
+		o.Quantity += n
+	}
+
+	func (o *Orange) Decrease(n int) {
+		o.Quantity -= n
+	}
+
+	func (o *Orange) String() string {
+		return fmt.Sprintf("local:%v", o)
+	}
+
+	func main() {
+		orange := &Orange{}
+		orange.Increase(10)
+		orange.Decrease(5)
+		fmt.Println(orange)
+	}
+	上面代码编译报错，栈溢出，而将 %v 改为 %#v 后，输出 local:&main.Orange{Quantity:5}
+
+	对比程序2： 将本地 String 方法改为值接收者，则对象就实现了 String接口，用对象就可以调用到本地的 String方法
+	type Orange struct {
+		Quantity int
+	}
+
+	func (o *Orange) Increase(n int) {
+		o.Quantity += n
+	}
+
+	func (o *Orange) Decrease(n int) {
+		o.Quantity -= n
+	}
+
+	func (o Orange) String() string {
+		return fmt.Sprintf("local:%v", o.Quantity)
+	}
+
+	func main() {
+		var orange Orange
+		orange.Increase(10)
+		orange.Decrease(5)
+		fmt.Println(orange)
+	}
+
+	输出：local:5
+
+	对比程序3：将对多程序2中的 String 函数修改如下，就会编译报错，栈溢出
+
+	func (o Orange) String() string {
+		return fmt.Sprintf("local:%v", o)
+	}
+
+	而将 %v 改为 %#v 后，
+	输出 local:main.Orange{Quantity:5}，与上面相比，main前面少了取地址符 &
+
+	总结：
+		1. fmt包的格式化输出函数（Println,Printf等）底层定义了 String 接口，如果将要 格式化输出 的对象实现了String方法(这里是 orange)，那么在格式化输出时，会调用本地实现的String方法。
+		这里要注意 是对象实现了 String方法，还是 对象的指针实现了String方法，后者可以调前者的方法，而前者不可以调后者的方法
+		2. 如果在自定义的string 方法中(指针接口者)格式化输出指针对象，如果在自定义的 String 方法中 （值接口者）格式化输出对象 或 对象指针，会栈溢出（格式化输出指针对象的成员是可以的）
+		3. 如果将  %v  改为  %#v ，编译通过，不会有栈溢出了 , 为什么呢？
+
+36. 参考答案及解析：变量 one、two 和 three 声明未使用。
+	知识点：未使用变量。如果有未使用的变量代码将编译失败。但也有例外，函数中声明的变量必须要使用，但可以有未使用的全局变量
+		函数的参数未使用也是可以的。
 	如果你给未使用的变量分配了一个新值，代码也还是会编译失败。你需要在某个地方使用这个变量，才能让编译器愉快的编译。
  后面是一个匿名函数的调用，一般会声名一个函数变量，不会这么用
+ 
+42. 参考答案及解析：编译可以通过。知识点：常量。常量是一个简单值的标识符，在程序运行时，不会被修改的量。不像变量，常量未使用是能编译通过的
 
-37. false true false
-类型断言语法：i.(Type)，其中 i 是接口，Type 是类型或接口。编译时会自动检测 i 的动态类型与 Type 是否一致。但是，如果动态类型不存在，则断言总是失败
+29. 参考答案及解析：编译报错cannot take the address of i。
+	知识点：常量。常量不同于变量的在运行期分配内存，常量通常会被编译器在预处理阶段直接展开，作为指令数据使用，所以常量无法寻址	
+	1. 全局变量 和 const 常量，允许声明，但不使用
+	2. const 可以在任何地方声名常量
+	3. 不可以对 const常量取地址
+	4. var 可以在任何地方声名变量(函数内和函数外)，在函数内声名的变量，必须要使用，否则编译报错
 
+简短方式声名变量，只能在函数内声名，而且声名了必须要使用
+
+37. false true false true
+	知识点：1. 类型断言语法：i.(Type)，其中 i 是接口，Type 是类型或接口。编译时会自动检测 i 的动态类型与 Type 是否一致。
+		  但是，如果动态类型不存在，则断言总是失败
+	       2. x，y 都为 nil ，但 x == y 却为 false？是的， 因为它们分别是不同数据类型的 nil 值 
+		
+48. 编译报错：invalid operation: fn1 != fn2 (func can only be compared to nil)
+	知识点： 函数只能与 nil 比较
+	fn1 与 fn2 分别代表两个函数的地址
+	
 38. 参考答案及解析：问题：使用 cap() 获取 map 的容量。
 	1.使用 make 创建 map 变量时可以指定第二个参数，不过会被忽略。
 	2.cap() 函数适用于数组、数组指针、slice 和 channel，不适用于 map，可以使用 len() 返回 map 的元素个数
@@ -274,7 +666,7 @@ recover() 必须在 defer() 函数中调用才有效，所以第 9 行代码捕�
 		}
 	}
 	
-39. 参考答案及解析：nil 用于表示 interface、函数、maps、slices 和 channels 的“零值”。
+39. 参考答案及解析：nil 用于表示 interface、函数、指针、maps、slices、数组 和 channels 的“零值”
 	如果不指定变量的类型，编译器猜不出变量的具体类型，导致编译错误
   对比：
   buildin 类型是可以推到出来的
@@ -301,12 +693,6 @@ recover() 必须在 defer() 函数中调用才有效，所以第 9 行代码捕�
 
 	    fmt.Println(data)   
 	}
-
-41. 参考答案及解析：34。与 rune 是 int32 的别名一样，byte 是 uint8 的别名，别名类型无序转换，可直接转换
-
-42. 参考答案及解析：编译可以通过。知识点：常量。常量是一个简单值的标识符，在程序运行时，不会被修改的量。不像变量，常量未使用是能编译通过的
-
-43. default , channel 为 nil,读写都会阻塞
 
 44. 参考答案及解析：输出 {}。知识点：结构体访问控制，因为 name 首字母是小写，导致其他包不能访问，所以输出为空结构体。修复代码：
 	 type People struct {
@@ -352,57 +738,77 @@ recover() 必须在 defer() 函数中调用才有效，所以第 9 行代码捕�
 	x | y: 11011110
 	x &^ y: 10000010
 
-46. 参考答案及解析：B。调用 foo() 函数时虽然是传值，但 foo() 函数中，字段 ls 依旧可以看成是指向底层数组的指针
+46. 参考答案及解析：100。调用 foo() 函数时虽然是传值，但 foo() 函数中，字段 ls 依旧可以看成是指向底层数组的指针
 
-47. 参考答案及解析：false true。Go 语言的 switch 语句虽然没有"break"，但如果 case 完成程序会默认 break，可以在 case 语句后面加上关键字 fallthrough，这样就会接着走下一个 case 语句（不用匹配后续条件表达式）。或者，利用 case 可以匹配多个值的特性
+49. 编译错误，最好对其一层一层初始化
+注意： 如果 map 的 value 是 struct ，可以用这样的方式（m[0].n）读到结构体成员的值，但是不可以写，不能用这样的方式（m[0].n++）修改结构体成员的值
+否则会报错：cannot assign to struct field m[3].n in map
 
- 修复代码
- func main() {
-     isMatch := func(i int) bool {
-         switch(i) {
-         case 1:
-             fallthrough
-         case 2:
-             return true
-         }
-         return false
-    }
-
-    fmt.Println(isMatch(1))     // true
-    fmt.Println(isMatch(2))     // true
-
-    match := func(i int) bool {
-        switch(i) {
-        case 1,2:
-            return true
-        }
-        return false
-    }
-
-    fmt.Println(match(1))       // true
-    fmt.Println(match(2))       // true
+那这种情况下想修改 map中 结构体成员的值，应该怎么办呢？
+只能用 中间变量的方式，如下
+type T struct {
+	n int
+}
+func main() {
+	m := make(map[int]T)
+	m[0] = T{3}
+	tmp := m[0]
+	tmp.n++
+	m[0] = tmp
+	fmt.Println(m[0].n)
 }
 
-48. 函数只能与 nil 比较
+注意： 如果 map 的value 是 struct 指针 或 内建数据类型（比如int；指针是不是也算内建类型？ ），则可以用类似 m[0].n++ 的方式直接进行修改
+结构体指针的方式，如下
+type T struct {
+	n int
+}
+func main() {
+	m := make(map[int]*T)
+	m[0] = &T{3}
+	//m[0].n = 1
+	//fmt.Println(m[0].n)
+	m[0].n++
+	fmt.Println(m[0].n)
+}
 
-49. 编译错误，map中的 T 尚未初始化，map 的value 是 struct,slice等时，一定要一层一层初始化
+内建类型的情况，如下
+func main() {
+	m := make(map[int]int)
+	m[0] = 3
+	//m[0].n = 1
+	//fmt.Println(m[0].n)
+	m[0]++
+	fmt.Println(m[0])
+}
+内建类型指针的情况，如下
+func main() {
+	m := make(map[int]*int)
+	a := 3
+	m[0] = &a
+	*m[0]++
+	fmt.Println(*m[0])
+}
+上面输出值都是 4
 
-50. 参考答案及解析：X{} 是不可寻址的，不能直接调用方法。知识点：在方法中，指针类型的接收者必须是合法指针（包括 nil）,或能获取实例地址
+50. 参考答案及解析：X{} 是不可寻址的，不能直接调用方法。
+	知识点：
+		1. 只要是合法的指针变量（指针变量的值为 nil也是可以的），就可以调用该指针对应类型的方法
+		2. 实例化的对象是不可能寻址的，只有变量才可以寻址
 修复代码：
 
 	func main() {
-
 	    var a *X
-	    a.test()    // 相当于 test(nil)
+	    a.test()    // a 的值是 nil，输出 "0x0" 
 
 	    var x = X{}
 	    x.test()
 	}
-对比：直接返回的 T{} 不可寻址
+对比：直接返回的 T{} 不可寻址(它是值，不是变量)
 	type T struct {
 	     n int
 	 }
-
+	 
 	 func (t *T) Set(n int) {
 	     t.n = n
 	 }

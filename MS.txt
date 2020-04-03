@@ -1,4 +1,4 @@
-1.下面这段代码输出什么？
+1-1.下面这段代码输出什么？
 
   type Direction int
 
@@ -16,6 +16,54 @@
   func main() {
       fmt.Println(South)
   }
+  
+1-2. 下面代码输出什么
+package main
+
+import "fmt"
+
+type Direction int
+
+const (
+	North Direction = iota
+	East
+	South
+	West
+)
+
+
+func main() {
+	var api interface{}
+	api = South
+	switch api.(type) {
+	case int:
+		fmt.Println(api.(int))
+	case Direction:
+		fmt.Println(api.(Direction))
+	}
+}
+
+1-3. 下面代码有什么错误？怎样改正？
+type Direction = int
+
+const (
+	North Direction = iota
+	East
+	South
+	West
+)
+
+func main() {
+	var api interface{}
+	api = South
+	switch api.(type) {
+	case int:
+		fmt.Println(api.(int))
+	case Direction:
+		fmt.Println(api.(Direction))
+	}
+}
+
 2.下面代码输出什么？
 
   type Math struct {
@@ -34,21 +82,26 @@
   B. compilation error
 3.下面这段代码输出什么？
 
-  const (
-      a = iota
-      b = iota
-  )
-  const (
-      name = "name"
-      c    = iota
-      d    = iota
-  )
-  func main() {
-      fmt.Println(a)
-      fmt.Println(b)
-      fmt.Println(c)
-      fmt.Println(d)
-  }
+const (
+	a = iota
+	b = iota
+)
+const (
+	name = "name"
+	c    = iota
+	d   
+	e= "aasf"
+	f 
+	h  =iota
+	m 
+)
+func main() {
+	fmt.Println(a)
+	fmt.Println(b)
+	fmt.Println(d)
+	fmt.Println(f)
+	fmt.Println(m)
+}
 4. 下面这段代码输出什么？为什么？
 
 type People interface {
@@ -221,44 +274,6 @@ func calc(index string, a, b int) int {
     return ret
 }
 
-15. 下面这段代码输出什么？为什么？
-
-func (i int) PrintInt ()  {
-    fmt.Println(i)
-}
-
-func main() {
-    var i int = 1
-    i.PrintInt()
-}
-A. 1
-B. compilation error
-
-16. 下面这段代码输出什么？为什么？
-
-type People interface {
-    Speak(string) string
-}
-
-type Student struct{}
-
-func (stu *Student) Speak(think string) (talk string) {
-    if think == "speak" {
-        talk = "speak"
-    } else {
-        talk = "hi"
-    }
-    return
-}
-
-func main() {
-    var peo People = Student{}
-    think := "speak"
-    fmt.Println(peo.Speak(think))
-}
-A. speak
-B. compilation error
-
 17. 下面这段代码输出什么？
 
 func main() {
@@ -276,7 +291,31 @@ func main() {
     fmt.Println("a = ", a)
 }
 
-18. 下面这段代码输出什么？
+18. 下面代码里的 counter 的输出值？
+
+func main() {
+
+    var m = map[string]int{
+        "A": 21,
+        "B": 22,
+        "C": 23,
+    }
+    counter := 0
+    for k, v := range m {
+        if counter == 0 {
+            delete(m, "A")
+        }
+        counter++
+        fmt.Println(k, v)
+    }
+    fmt.Println("counter is ", counter)
+}
+A. 2
+B. 3
+C. 2 或 3
+
+
+19. 下面这段代码输出什么？
 
 func change(s ...int) {
     s = append(s,3)
@@ -292,7 +331,7 @@ func main() {
     fmt.Println(slice)
 }
 
-19. 下面列举的是 recover() 的几种调用方式，哪些是正确的？
+20. 下面列举的是 recover() 的几种调用方式，哪些是正确的？
 
 A.
 func main() {
@@ -321,7 +360,7 @@ func main() {
     panic(1)
 }
 
-20. 下面代码输出什么，请说明？
+21. 下面代码输出什么，请说明？
 func main() {
      defer func() {
          fmt.Print(recover())
@@ -333,7 +372,7 @@ func main() {
      defer recover() 
     panic(2)
 }
-21. 输出什么？
+22-1. 输出什么？
 func main() {
      defer func() {
         fmt.Print(recover())
@@ -347,58 +386,108 @@ func main() {
     defer recover()
     panic(2)
 }
-
-22. 下面代码里的 counter 的输出值？
+22-2. 输出什么？
 
 func main() {
-
-    var m = map[string]int{
-        "A": 21,
-        "B": 22,
-        "C": 23,
-    }
-    counter := 0
-    for k, v := range m {
-        if counter == 0 {
-            delete(m, "A")
-        }
-        counter++
-        fmt.Println(k, v)
-    }
-    fmt.Println("counter is ", counter)
+	defer_call()
+	defer_call2()
 }
-A. 2
-B. 3
-C. 2 或 3
+
+func defer_call() {
+	defer func() {
+		fmt.Println(recover())
+		fmt.Println(recover())
+		fmt.Println("打印前")
+	}()
+	defer func() {
+		fmt.Println(recover())
+		fmt.Println("打印中")
+		panic("触发异常22")
+	}()
+	defer func() {
+		fmt.Println("打印后")
+		panic("触发异常11")
+	}()
+	panic("触发异常")
+	fmt.Println("func defer_call")
+}
+
+func defer_call2() {
+	fmt.Println("func defer_call2")
+}
+
+22-3. 输出什么？
+func main() {
+	defer func() {
+		fmt.Print(recover())
+	}()
+	defer func() {
+		defer fmt.Print(recover())
+		panic(1)
+	}()
+	defer recover()
+	panic(2)
+}
 
 23. 下面代码输出什么？
+func False() bool {
+	return false
+}
+
 func main() {
 	a := false
 	switch a {
 	case false:
-		fmt.Println("1")
+		fmt.Println("false")
 	case true:
-		fmt.Println("5")
+		fmt.Println("true")
 	}
 
-	f := func() bool {
-		return false
-	}
-
-	switch f(); {
+	switch False() {
 	case false:
-		fmt.Println("1")
+		fmt.Println("false")
 	case true:
-		fmt.Println("5")
+		fmt.Println("true")
 	}
 
-	switch f() {
+	switch False(); {
 	case false:
-		fmt.Println("1")
+		fmt.Println("false")
 	case true:
-		fmt.Println("5")
+		fmt.Println("true")
+	}
+
+	switch {
+	case false:
+		fmt.Println("false")
+	case true:
+		fmt.Println("true")
+	}
+	
+	switch m := False(); {
+	case m == false:
+		fmt.Println("false")
+	case m == true:
+		fmt.Println("true")
 	}
 }
+
+47. 下面代码输出什么？
+
+ func main() {
+     isMatch := func(i int) bool {
+         switch(i) {
+         case 1:
+         case 2:
+             return true
+         }
+         return false
+     }
+
+    fmt.Println(isMatch(1))
+    fmt.Println(isMatch(2))
+}
+
 24. 下面代码输出正确的是？
 
 func main() {
@@ -447,6 +536,20 @@ func main() {
     i1.m1()
     i2.m2()
 }
+
+41. 下面代码输出什么？
+
+ func test(x byte)  {
+     fmt.Println(x)
+ }
+ 
+ func main() {
+     var a byte = 0x11 
+     var b uint8 = a
+     var c uint8 = a + b
+     test(c)
+}
+
 27. 
 下面代码输出什么？
 
@@ -469,14 +572,7 @@ func main() {
      var x *int = nil
     Foo(x)
 }
-29. 下面代码有什么问题？
-	const i = 100
-	var j = 123
 
-	func main() {
-    	fmt.Println(&j, j)
-    	fmt.Println(&i, i)
-	}
 30. 下面代码输出什么？
 func main() {
      ch := make(chan int, 100)
@@ -502,9 +598,20 @@ func main() {
     time.Sleep(time.Second * 10)
 }
 
-31. .下面的代码有什么问题？
+31. 下面的代码有什么问题？
 func Stop(stop <-chan bool) {
     close(stop)
+}
+
+43. 下面代码输出什么？
+func main() {
+    var ch chan int
+    select {
+    case v, ok := <-ch:
+        println(v, ok)
+    default:
+        println("default") 
+    }
 }
 
 32. 下面这段代码存在什么问题？
@@ -533,7 +640,7 @@ func main()
     fmt.Println("hello world")
 }
 
-35. 下面代码输出什么？
+35-1. 下面代码输出什么？
 
  type ConfigOne struct {
      Daemon string
@@ -547,6 +654,32 @@ func main()
     c := &ConfigOne{}
     c.String()
 }
+
+35-2. 下面代码输出什么？
+
+ type Orange struct {
+     Quantity int
+ }
+ 
+ func (o *Orange) Increase(n int) {
+     o.Quantity += n
+ }
+ 
+ func (o *Orange) Decrease(n int) {
+    o.Quantity -= n
+}
+
+func (o *Orange) String() string {
+    return fmt.Sprintf("local:%#v", o.Quantity)
+}
+
+func main() {
+    var orange Orange
+    orange.Increase(10)
+    orange.Decrease(5)
+    fmt.Println(orange)
+}
+
 
 36. 请指出下面代码的错误？
 
@@ -564,15 +697,45 @@ func main()
         fmt.Println("Unused arg. No compile error")
     }("what?")
 }
+
+42. 下面的代码有什么问题？
+
+func main() {
+    const x = 123
+    const y = 1.23
+    fmt.Println(x)
+}
+
+29. 下面代码有什么问题？
+	const i = 100
+	var j = 123
+
+	func main() {
+    	fmt.Println(&j, j)
+    	fmt.Println(&i, i)
+	}
+	
 37. 下面代码输出什么？
 
 func main() {
-    x := interface{}(nil)
-    y := (*int)(nil)
-    a := y == x
-    b := y == nil
-    _, c := x.(interface{})
-    println(a, b, c)
+	x := interface{}(nil)
+	y := (*int)(nil)
+	a := y == x
+	b := y == nil
+	d := x == nil
+	_, c := x.(interface{})
+	println(a, b, c, d)
+}
+
+48. 下面的代码能否正确输出？
+
+func main() {
+    var fn1 = func() {}
+    var fn2 = func() {}
+
+    if fn1 != fn2 {
+        println("fn1 not equal fn2")
+    }
 }
 
 38. 下面代码有什么问题？
@@ -605,39 +768,6 @@ func main() {
 		fmt.Println(err)
 	}
 	fmt.Printf("info: %+v\n", data)
-}
-
-41. 下面代码输出什么？
-
- func test(x byte)  {
-     fmt.Println(x)
- }
- 
- func main() {
-     var a byte = 0x11 
-     var b uint8 = a
-     var c uint8 = a + b
-     test(c)
-}
-
-42. 下面的代码有什么问题？
-
-func main() {
-    const x = 123
-    const y = 1.23
-    fmt.Println(x)
-}
-
-43. 下面代码输出什么？
-
-func main() {
-    var ch chan int
-    select {
-    case v, ok := <-ch:
-        println(v, ok)
-    default:
-        println("default") 
-    }
 }
 
 44. 下面这段代码输出什么？
@@ -684,33 +814,6 @@ func main() {
     fmt.Println(t.ls[0])
 }
 
-47. 下面代码输出什么？
-
- func main() {
-     isMatch := func(i int) bool {
-         switch(i) {
-         case 1:
-         case 2:
-             return true
-         }
-         return false
-     }
-
-    fmt.Println(isMatch(1))
-    fmt.Println(isMatch(2))
-}
-
-48. 下面的代码能否正确输出？
-
-func main() {
-    var fn1 = func() {}
-    var fn2 = func() {}
-
-    if fn1 != fn2 {
-        println("fn1 not equal fn2")
-    }
-}
-
 49. 下面代码输出什么？
 
 type T struct {
@@ -732,7 +835,6 @@ func main() {
  }
  
  func main() {
- 
      var a *X
     a.test()
 
